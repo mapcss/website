@@ -37,7 +37,7 @@ export function Header(
 
             <a
               href="https://github.com/TomokiMiyauci/mapcss"
-              className="hidden sm:block text-slate-400 hover:text-slate-500 transition-colors duration-200"
+              className="hidden sm:block hover:text-slate-500 transition-colors duration-200"
               target="_blank"
               title="mapcss GitHub"
             >
