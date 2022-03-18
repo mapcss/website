@@ -11,14 +11,20 @@ const ToggleDark = (): JSX.Element => {
       checked={enabled}
       onChange={setEnabled}
       title="Switch dark mode"
-      className={`${enabled ? "bg-dark-900" : "bg-dark-700"}
-          relative inline-flex flex-shrink-0 h-[24px] w-[48px] border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75`}
+      className={clsx(
+        "relative inline-flex flex-shrink-0 h-[24px] w-[48px] border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 focus:outline-none focus-visible:ring-2  focus-visible:ring-white focus-visible:ring-opacity-75",
+        { "bg-white": enabled },
+        { "bg-dark-900": !enabled },
+      )}
     >
       <span className="sr-only">Use setting</span>
       <span
         aria-hidden="true"
-        className={`${enabled ? "translate-x-6" : "translate-x-0"}
-            pointer-events-none inline-flex items-center justify-center h-[20px] w-[20px] rounded-full text-black bg-white shadow-lg transform transition ease-in-out duration-200`}
+        className={clsx(
+          "pointer-events-none inline-flex items-center justify-center h-[20px] w-[20px] rounded-full bg-white dark:bg-black shadow-lg transform transition ease-in-out duration-200",
+          { "translate-x-6": enabled },
+          { "translate-x-0": !enabled },
+        )}
       >
         <span
           className={clsx(
