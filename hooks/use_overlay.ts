@@ -9,7 +9,7 @@ const useOverlay = () => {
     if (node && (ev.target as Window).innerWidth > 768) {
       off();
     }
-  }, [node]);
+  }, { deps: [node], enabled: !!node });
 
   return [node, { off, ...rest }] as const;
 };
