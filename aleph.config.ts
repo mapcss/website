@@ -1,10 +1,12 @@
 import mapcssPlugin from "./plugins/mapcss.ts";
 import {
   iconifyJSON,
+  preflightCSS,
   presetSvg,
   presetTw,
   presetTypography,
 } from "https://deno.land/x/mapcss@v1.0.0-beta.36/mod.ts";
+import { deepMerge } from "https://deno.land/std@0.130.0/collections/deep_merge.ts";
 
 import remarkFrontmatter from "https://cdn.skypack.dev/remark-frontmatter";
 import { remarkMdxFrontmatter } from "https://esm.sh/remark-mdx-frontmatter";
@@ -86,7 +88,7 @@ const base: MapcssConfig = {
 
 const config: MapcssConfig = {
   ...base,
-  css: {
+  css: deepMerge(preflightCSS, {
     ".dark": {
       ...chain(generate("bg-dark-900 text-slate-50", base).ast).map(
         filterDeclaration,
@@ -94,7 +96,12 @@ const config: MapcssConfig = {
         toObject,
       ).unwrap(),
     },
-  },
+    body: chain(generate("antialiased", base).ast).map(
+      filterDeclaration,
+    ).map(
+      toObject,
+    ).unwrap(),
+  }),
   cssMap: {
     max: {
       w: {
