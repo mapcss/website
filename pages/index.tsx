@@ -1,8 +1,11 @@
 import React from "react";
+import { Header } from "~/components/header.tsx";
 
 export default function Home() {
   return (
     <>
+      <Header innerClassName="lg:px-8" />
+
       <h1 className="text-slate-900 lg:block font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center dark:text-white">
         Rapidly build modern websites without ever leaving your HTML.
       </h1>

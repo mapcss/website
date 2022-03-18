@@ -60,7 +60,7 @@ export default function Playground() {
       <main className="h-[calc(100%_-_61px)] grid lg:grid-cols-2 overflow-hidden">
         <div className="h-full flex flex-col">
           <Tab.Group>
-            <Tab.List className="py-1 px-4 space-x-2 shadow">
+            <Tab.List className="py-1 px-4 lg:px-8 space-x-2 shadow">
               <Tab
                 className={({ selected }) =>
                   clsx({ "text-amber-500": selected })}
