@@ -1,5 +1,10 @@
 import mapcssPlugin from "./plugins/mapcss.ts";
-import { iconifyJSON, presetSvg, presetTw, presetTypography } from "../mod.ts";
+import {
+  iconifyJSON,
+  presetSvg,
+  presetTw,
+  presetTypography,
+} from "https://deno.land/x/mapcss@v1.0.0-beta.36/mod.ts";
 
 import remarkFrontmatter from "https://cdn.skypack.dev/remark-frontmatter";
 import { remarkMdxFrontmatter } from "https://esm.sh/remark-mdx-frontmatter";
