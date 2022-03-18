@@ -3,5 +3,5 @@ Thumbs.db
 .aleph/
 dist/
 public/worker.js
-
+*.log
 .vercel
