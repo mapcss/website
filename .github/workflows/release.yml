@@ -18,8 +18,9 @@ jobs:
 
       - name: build
         run: |
+          deno run -A https://deno.land/x/aleph/install.ts
           deno run -A _tools/build_worker.ts 
-          deno run -A https://deno.land/x/aleph/cli.ts build
+          aleph build
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
