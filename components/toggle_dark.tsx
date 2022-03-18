@@ -28,7 +28,7 @@ const ToggleDark = (): JSX.Element => {
       >
         <span
           className={clsx(
-            "w-3.5 h-3.5 transition-all duration-700",
+            "w-3.5 h-3.5 transition-all duration-200",
             enabled ? "i-mdi-weather-night" : "i-mdi-white-balance-sunny",
           )}
         />
