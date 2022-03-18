@@ -21,9 +21,6 @@ jobs:
           path: |
             /home/runner/.cache/deno
 
-      - name: cache
-        run: DENO_DIR=./deno deno cache --import-map=import_map.json --no-check deps.ts aleph.config.ts _utils.ts
-
       - name: build
         run: |
           deno run -A https://deno.land/x/aleph/install.ts
