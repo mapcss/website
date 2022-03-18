@@ -1,0 +1,25 @@
+name: preview
+
+on: pull_request
+
+jobs:
+  deploy:
+    if: '${{ github.event.pull_request.head.repo.full_name == github.repository }}'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+
+      - name: build
+        run: |
+          deno run -A _tools/build_worker.ts 
+          deno run -A https://deno.land/x/aleph/cli.ts build
+          
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MAPCSS_5B66C }}'
+          projectId: mapcss-5b66c
