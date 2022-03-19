@@ -49,8 +49,8 @@ export const CODE =
 </div>
 `;
 
-export const RAW_CONFIG = `// Changes have a debounce of 3000 ms.
-import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
+export const RAW_CONFIG =
+  `import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
 
 export default {
   preset: [presetTw()],

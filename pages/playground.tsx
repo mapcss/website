@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
-  Monaco,
+  OnMount,
 } from "https://esm.sh/@monaco-editor/react?pin=v69";
 import root from "https://esm.sh/react-shadow";
-import useDebounce from "~/hooks/use_debounce.ts";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
@@ -35,10 +34,15 @@ const tabs: ({ name: string } & JSX.IntrinsicElements["button"])[] = [
 export default function Playground() {
   const [input, setInput] = useState<string | undefined>(CODE);
   const [cssSheet, setCSSSheet] = useState("");
-  const [rawConfig, setRawConfig] = useState<string | undefined>(
+  const [rawConfig, setRawConfig] = useState<string>(
     RAW_CONFIG,
   );
+  const [rawConfigDiff, setRawConfigDiff] = useState<string>(RAW_CONFIG);
   const [selectedIndex, setSelectedIndex] = useState<number>();
+
+  const [monacoSet, setMonacoSet] = useState<Parameters<OnMount>>();
+
+  const save = () => setRawConfigDiff(rawConfig);
 
   const theme = useColorModeValue("light", "vs-dark");
   const cssStyle = useMemo(() => {
@@ -49,16 +53,32 @@ export default function Playground() {
     return style;
   }, [cssSheet]);
 
-  const [configMonacoEditor, setMonaco] = useState<Monaco>();
-
-  useEffect(() => {
-    configMonacoEditor?.languages.typescript.typescriptDefaults
+  const handleMound: OnMount = (editor, monaco) => {
+    monaco.languages.typescript.typescriptDefaults
       .setDiagnosticsOptions({
         noSemanticValidation: true,
       });
-  }, [configMonacoEditor]);
 
-  const queryWorker = () => {
+    setMonacoSet([editor, monaco]);
+  };
+
+  useEffect(() => {
+    if (!monacoSet) return;
+    const [editor, monaco] = monacoSet;
+
+    const fn = editor.addAction({
+      label: "save",
+      id: "save",
+      keybindings: [
+        monaco.KeyMod.CtrlCmd | (monaco.KeyCode as any).KEY_S,
+      ],
+      run: save,
+    });
+
+    return () => fn.dispose();
+  }, [monacoSet, rawConfig]);
+
+  const queryWorker = (rawConfig: string) => {
     const ws = new Worker("./worker.js");
     ws.onmessage = ({ data }) => {
       setCSSSheet(data);
@@ -67,19 +87,18 @@ export default function Playground() {
     ws.postMessage({ code: input, rawConfig });
   };
 
-  useEffect(queryWorker, [input]);
+  useEffect(() => queryWorker(rawConfigDiff), [input, rawConfigDiff]);
+
+  const enabledSave = useMemo<boolean>(() => rawConfigDiff !== rawConfig, [
+    rawConfigDiff,
+    rawConfig,
+  ]);
 
   useResize((ev) => {
     if (selectedIndex === 3 && (ev.currentTarget as Window).innerWidth > 1024) {
       setSelectedIndex(0);
     }
   }, { deps: [], enabled: selectedIndex === 3 });
-
-  useDebounce(
-    queryWorker,
-    { delay: 3000 },
-    [rawConfig],
-  );
 
   return (
     <>
@@ -90,18 +109,45 @@ export default function Playground() {
       <main className="h-[calc(100%_-_61px)] grid lg:grid-cols-2 overflow-hidden">
         <div className="h-full flex flex-col">
           <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-            <Tab.List className="py-1 px-4 lg:px-8 space-x-2 shadow">
-              {tabs.map(({ name, className, ...rest }) => (
-                <Tab
-                  key={name}
-                  {...rest}
-                  className={({ selected }) =>
-                    clsx({ "text-amber-500": selected }, className)}
-                >
-                  {name}
-                </Tab>
-              ))}
-            </Tab.List>
+            <div className="py-1 px-4 lg:pl-8 shadow flex justify-between">
+              <Tab.List className="space-x-2">
+                {tabs.map(({ name, className, ...rest }) => (
+                  <Tab
+                    key={name}
+                    {...rest}
+                    className={({ selected }) =>
+                      clsx({ "text-amber-500": selected }, className)}
+                  >
+                    <span>
+                      {name}
+                    </span>
+                    <span
+                      className={clsx(
+                        "ml-1 i-mdi-circle w-2 h-2 text-teal-500",
+                        name === "Config" && enabledSave
+                          ? "visible"
+                          : "invisible",
+                        {
+                          "invisible": name !== "Config",
+                        },
+                      )}
+                    />
+                  </Tab>
+                ))}
+              </Tab.List>
+
+              <section>
+                <button
+                  disabled={!enabledSave}
+                  onClick={save}
+                  className={clsx("disabled:text-gray-500 i-mdi-content-save", {
+                    "hidden": selectedIndex !== 1,
+                  })}
+                  title="save"
+                />
+              </section>
+            </div>
+
             <Tab.Panels className="flex-1">
               <Tab.Panel className="h-full">
                 <Editor
@@ -121,10 +167,10 @@ export default function Playground() {
                   options={editorOptions}
                   loading={<></>}
                   defaultLanguage="typescript"
-                  onChange={setRawConfig}
+                  onChange={(value) => setRawConfig(value ?? "")}
                   value={rawConfig}
                   theme={theme}
-                  onMount={(_, monaco) => setMonaco(monaco)}
+                  onMount={handleMound}
                 />
               </Tab.Panel>
               <Tab.Panel className="h-full">
@@ -156,7 +202,6 @@ export default function Playground() {
             </Tab.Panels>
           </Tab.Group>
         </div>
-
         {cssStyle && input && (
           <root.div
             mode="closed"
