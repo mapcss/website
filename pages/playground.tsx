@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
+  Monaco,
 } from "https://esm.sh/@monaco-editor/react?pin=v69";
 import root from "https://esm.sh/react-shadow";
 import useDebounce from "~/hooks/use_debounce.ts";
@@ -47,6 +48,15 @@ export default function Playground() {
 
     return style;
   }, [cssSheet]);
+
+  const [configMonacoEditor, setMonaco] = useState<Monaco>();
+
+  useEffect(() => {
+    configMonacoEditor?.languages.typescript.typescriptDefaults
+      .setDiagnosticsOptions({
+        noSemanticValidation: true,
+      });
+  }, [configMonacoEditor]);
 
   const queryWorker = () => {
     const ws = new Worker("./worker.js");
@@ -114,6 +124,7 @@ export default function Playground() {
                   onChange={setRawConfig}
                   value={rawConfig}
                   theme={theme}
+                  onMount={(_, monaco) => setMonaco(monaco)}
                 />
               </Tab.Panel>
               <Tab.Panel className="h-full">
