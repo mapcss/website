@@ -50,10 +50,11 @@ export const CODE =
 `;
 
 export const RAW_CONFIG = `// Changes have a debounce of 3000 ms.
-// import { presetTw } from "https://deno.land/x/mapcss/mod.ts"
+import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
 
 export default {
-  // preset: [presetTw()]
-  minify: false
+  preset: [presetTw()],
+  minify: false,
+  css: preflightCSS
 }
 `;
