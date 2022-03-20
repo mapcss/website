@@ -1,15 +1,23 @@
 import { DependencyList, EffectCallback, useEffect, useRef } from "react";
 
+type Option = {
+  /**
+   * @default 0
+   */
+  delay: number;
+
+  /** deps If present, effect will only activate if the values in the list change. */
+  deps: DependencyList;
+};
 const useDebounce = (
   effect: EffectCallback,
-  option: { delay: number },
-  deps?: DependencyList,
+  { delay = 0, deps }: Partial<Option> = {},
 ) => {
   const ref = useRef<ReturnType<EffectCallback>>();
   useEffect(() => {
     const timerId = setTimeout(() => {
       ref.current = effect();
-    }, option?.delay);
+    }, delay);
 
     return () => {
       clearTimeout(timerId);
