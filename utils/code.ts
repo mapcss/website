@@ -1,60 +1,85 @@
 export const CODE =
   `<div class="min-h-screen py-6 flex flex-col justify-center relative overflow-hidden sm:py-12">
-  <div class="absolute inset-0 bg-[url(/img/grid.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
-    <div class="relative px-6 pt-10 pb-8 bg-white shadow-xl ring-1 ring-gray-900/5 sm:max-w-lg sm:mx-auto sm:rounded-lg sm:px-10">
+  <div class="absolute inset-0 bg-center"></div>
+    <div class="relative px-6 pt-10 pb-8 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg sm:px-10">
       <div class="max-w-md mx-auto">
         <div class="divide-y divide-gray-300/50">
-          <div class="py-8 text-base leading-7 space-y-6 text-gray-600">
-            <p>An advanced online playground for Tailwind CSS, including support for things like:</p>
+          <div class="py-8 text-base leading-7 space-y-6">
+            <p>An advanced online playground for MapCSS, including support for things like:</p>
             <ul class="space-y-4">
               <li class="flex items-center">
-                <svg class="w-6 h-6 flex-none fill-sky-100 stroke-sky-500 stroke-2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="11" />
-              <path d="m8 13 2.165 2.165a1 1 0 0 0 1.521-.126L16 9" fill="none" />
-            </svg>
+              <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle"></span>
             <p class="ml-4">
-              Customizing your
-              <code class="text-sm font-bold text-gray-900">tailwind.config.js</code> file
+              Full customizable, on-demand
+              <code class="text-sm font-bold text-gray-900 dark:text-white">mapcss.config.ts</code>
             </p>
           </li>
           <li class="flex items-center">
-            <svg class="w-6 h-6 flex-none fill-sky-100 stroke-sky-500 stroke-2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="11" />
-              <path d="m8 13 2.165 2.165a1 1 0 0 0 1.521-.126L16 9" fill="none" />
-            </svg>
+            <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle"></span>
             <p class="ml-4">
-              Extracting classes with
-              <code class="text-sm font-bold text-gray-900">@apply</code>
+              Preview output <code class="text-sm font-bold text-gray-900 dark:text-white">CSS</code> and <code class="text-sm font-bold text-gray-900 dark:text-white">Element</code>
             </p>
-          </li>
-          <li class="flex items-center">
-            <svg class="w-6 h-6 flex-none fill-sky-100 stroke-sky-500 stroke-2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="11" />
-              <path d="m8 13 2.165 2.165a1 1 0 0 0 1.521-.126L16 9" fill="none" />
-            </svg>
-            <p class="ml-4">Code completion with instant preview</p>
           </li>
         </ul>
         <p>Perfect for learning how the framework works, prototyping a new idea, or creating a demo to share online.</p>
       </div>
       <div class="pt-8 text-base leading-7 font-semibold">
-        <p class="text-gray-900">Want to dig deeper into Tailwind?</p>
+        <p class="text-gray-900 dark:text-white">Want to dig deeper into MapCSS?</p>
         <p>
-          <a href="https://tailwindcss.com/docs" class="text-sky-500 hover:text-sky-600">Read the docs &rarr;</a>
+          <a href="/docs/installation" class="text-amber-500 hover:text-amber-600">Read the docs &rarr;</a>
         </p>
       </div>
     </div>
   </div>
-  </div>
 </div>
 `;
 
-export const RAW_CONFIG =
-  `import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
+export const RAW_CONFIG = `/**
+ * @remarks
+ * MapCSS is published to deno.land/x x.nest.land, npm registry.
+ * To deno.land/x, x.nest.land is published in TypeScript, so we use JavaScript module in Browser.
+ *
+ * @example
+ * Deno env
+ *
+ * \`\`\`ts
+ * import { generate } from "https://deno.land/x/mapcss/core/mod.ts"
+ * import { presetSvg } from "https://x.nest.land/mapcss/preset_svg/mod.ts"
+ * \`\`\`
+ *
+ * Browser
+ * \`\`\`js
+ * import { presetTw } from "https://esm.sh/@mapcss/preset-tw"
+ * import { presetTypography } from "https://esm.sh/@mapcss/preset-typography"
+ * import { presetSvg } from "https://esm.sh/@mapcss/preset-svg"
+ * \`\`\`
+ */
+import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
+import { presetSvg, iconifyJSON } from "https://esm.sh/@mapcss/preset-svg@beta"
 
+const res = await fetch("https://esm.sh/@iconify-json/mdi/icons.json")
+const mdi = await res.json()
+// In supported browsers you can do the following:
+// import mdi from "https://esm.sh/@iconify-json/mdi/icons.json" assert {
+// type: "json",
+// };
+
+import autoprefixer from "https://esm.sh/autoprefixer"
 export default {
-  preset: [presetTw()],
+  separator: "-",
+  variablePrefix: "map-",
+  preset: [
+    presetTw({
+      darkMode: "class",
+    }),
+    presetSvg({
+      svgMap: {
+        mdi: iconifyJSON(mdi),
+      }
+    })
+  ],
   minify: false,
-  css: preflightCSS
+  css: preflightCSS,
+  postcssPlugin: [autoprefixer()]
 }
 `;

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
   OnMount,
@@ -10,7 +10,6 @@ import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?pin=v69";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
-
 import "https://unpkg.com/construct-style-sheets-polyfill";
 
 export const editorOptions: EditorProps["options"] = {
@@ -52,6 +51,7 @@ export default function Playground() {
   const save = () => setRawConfigDiff(rawConfig);
 
   const theme = useColorModeValue("light", "vs-dark");
+  const darkClass = useColorModeValue("", "dark");
   const cssStyle = useMemo(() => {
     if (!window || !cssSheet) return;
     const style = new CSSStyleSheet();
@@ -223,7 +223,10 @@ export default function Playground() {
             className="hidden lg:block"
           >
             <div
-              className="whitespace-pre antialiased overflow-scroll grid place-content-center"
+              className={clsx(
+                "whitespace-pre antialiased overflow-scroll grid place-content-center",
+                darkClass,
+              )}
               dangerouslySetInnerHTML={{ __html: input }}
             >
             </div>
