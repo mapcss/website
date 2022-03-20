@@ -11,6 +11,9 @@ await esbuild.build({
     "import.meta.url": `{}`,
   },
   format: "esm",
+  treeShaking: true,
+  target: "es2018",
+  minify: true,
 });
 
 esbuild.stop();
