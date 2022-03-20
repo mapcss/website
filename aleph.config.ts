@@ -5,7 +5,7 @@ import {
   presetSvg,
   presetTw,
   presetTypography,
-} from "https://deno.land/x/mapcss@v1.0.0-beta.36/mod.ts";
+} from "https://deno.land/x/mapcss@v1.0.0-beta.39/mod.ts";
 import { deepMerge } from "https://deno.land/std@0.130.0/collections/deep_merge.ts";
 
 import remarkFrontmatter from "https://cdn.skypack.dev/remark-frontmatter";
@@ -20,6 +20,10 @@ import {
 import mdi from "https://esm.sh/@iconify-json/mdi/icons.json" assert {
   type: "json",
 };
+import vscodeIcons from "https://esm.sh/@iconify-json/vscode-icons/icons.json" assert {
+  type: "json",
+};
+import autoprefixer from "https://deno.land/x/postcss_autoprefixer@0.1.1/mod.js";
 import {
   Config as MapcssConfig,
   filterDeclaration,
@@ -77,6 +81,9 @@ const base: MapcssConfig = {
     presetSvg({
       svgMap: {
         mdi: iconifyJSON(mdi),
+        vscode: {
+          icons: iconifyJSON(vscodeIcons),
+        },
       },
       declaration: {
         display: "inline-block",
@@ -84,6 +91,7 @@ const base: MapcssConfig = {
       },
     }),
   ],
+  postcssPlugin: [autoprefixer()],
 };
 
 const config: MapcssConfig = {
@@ -125,7 +133,7 @@ export default <Config> {
     mdx({
       remarkPlugins: [
         remarkFrontmatter,
-        remarkMdxFrontmatter,
+        remarkMdxFrontmatter as any,
         remarkFrontmatterProps,
         remarkTocProps,
       ],
