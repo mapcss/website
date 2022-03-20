@@ -6,9 +6,7 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "rewrites": [{
-      "source": "/playground",
-      "destination": "/index.html"
-    }]
+    "cleanUrls": true,
+    "trailingSlash": true
   }
 }
