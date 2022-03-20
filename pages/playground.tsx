@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
   OnMount,
@@ -10,6 +10,7 @@ import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?pin=v69";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
+
 import "https://unpkg.com/construct-style-sheets-polyfill";
 
 export const editorOptions: EditorProps["options"] = {
@@ -85,16 +86,23 @@ export default function Playground() {
     return () => fn.dispose();
   }, [monacoSet, rawConfig]);
 
+  const [sw, setSw] = useState<Worker>();
+
   useEffect(() => {
-    const sw = new Worker("./worker.js", { type: "module" });
+    setSw(new Worker("./worker.js", { type: "module" }));
+  }, []);
+  useEffect(() => {
+    if (!sw) return;
+    return () => sw.terminate();
+  }, [sw]);
+
+  useEffect(() => {
+    if (!sw) return;
     sw.onmessage = ({ data }) => {
       setCSSSheet(data);
-      sw.terminate();
     };
     sw.postMessage({ code: input, rawConfig: rawConfigDiff });
-
-    return () => sw.terminate();
-  }, [input, rawConfigDiff]);
+  }, [sw, input, rawConfigDiff]);
 
   const enabledSave = useMemo<boolean>(() => rawConfigDiff !== rawConfig, [
     rawConfigDiff,
@@ -206,7 +214,10 @@ export default function Playground() {
                     styleSheets={[cssStyle]}
                   >
                     <div
-                      className="whitespace-pre antialiased overflow-scroll grid place-content-center"
+                      className={clsx(
+                        "whitespace-pre antialiased overflow-scroll grid place-content-center",
+                        darkClass,
+                      )}
                       dangerouslySetInnerHTML={{ __html: input }}
                     >
                     </div>

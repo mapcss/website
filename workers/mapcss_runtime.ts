@@ -1,20 +1,31 @@
-import { generate } from "https://deno.land/x/mapcss@v1.0.0-beta.37/core/generate.ts";
+import { generate } from "@mapcss/core/generate.ts";
+
+let configCache: [string, object] | undefined;
 
 self.addEventListener(
   "message",
-  (
+  async (
     { data: { code, rawConfig } }: MessageEvent<
       { code: string; rawConfig: string }
     >,
   ) => {
-    import(
-      `data:text/javascript;base64,${btoa(rawConfig)}`
-    ).then((module) => {
+    const uri = `data:text/javascript;base64,${btoa(rawConfig)}`;
+    if (configCache?.[0] === uri) {
+      const module = configCache[1];
       const { css } = generate(
         code,
-        module.default ?? {},
+        module ?? {},
       );
       self.postMessage(css);
-    }).catch(() => {});
+    } else {
+      const module = await import(uri);
+      const config = module.default ?? {};
+      configCache = [uri, config];
+      const { css } = generate(
+        code,
+        config,
+      );
+      self.postMessage(css);
+    }
   },
 );
