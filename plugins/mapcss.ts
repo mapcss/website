@@ -2,7 +2,7 @@ import {
   type Config as MapCSSConfig,
   extractBySpace,
   generate,
-} from "@mapcss/mod.ts";
+} from "@mapcss/core/mod.ts";
 import type { Plugin } from "aleph/types";
 import { expandGlob, WalkEntry } from "https://deno.land/std@0.125.0/fs/mod.ts";
 

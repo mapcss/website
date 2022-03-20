@@ -3,13 +3,13 @@ import {
   Config as MapcssConfig,
   filterDeclaration,
   generate,
-  iconifyJSON,
   ModifierDefinition,
-  preflightCSS,
-  presetSvg,
-  presetTw,
-  presetTypography,
-} from "@mapcss/mod.ts";
+} from "@mapcss/core/mod.ts";
+import { iconifyJSON, presetSvg } from "@mapcss/preset_svg/mod.ts";
+import { chain } from "@mapcss/preset_svg/deps.ts";
+import { default as AtRule } from "https://deno.land/x/postcss_core@v1.0.0-beta.1/lib/at-rule.js";
+import { presetTypography } from "@mapcss/preset_typography/mod.ts";
+import { preflightCSS, presetTw } from "@mapcss/preset_tw/mod.ts";
 import { deepMerge } from "https://deno.land/std@0.130.0/collections/deep_merge.ts";
 
 import remarkFrontmatter from "https://cdn.skypack.dev/remark-frontmatter";
@@ -28,7 +28,7 @@ import vscodeIcons from "https://esm.sh/@iconify-json/vscode-icons/icons.json" a
   type: "json",
 };
 import autoprefixer from "https://deno.land/x/postcss_autoprefixer@0.1.1/mod.js";
-import { AtRule, chain, toObject } from "@mapcss/deps.ts";
+import { toObject } from "https://deno.land/x/postcss_js@v1.0.0-beta.4/mod.ts";
 import { isAtRule, isRule } from "@mapcss/core/utils/assert.ts";
 import type { Config } from "aleph/types";
 
