@@ -15,8 +15,7 @@ import "https://unpkg.com/construct-style-sheets-polyfill";
 
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
-  fontLigatures: true,
-  fontSize: 14,
+  fontSize: 13,
   minimap: { enabled: false },
   tabSize: 2,
 };
