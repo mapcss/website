@@ -11,6 +11,8 @@ import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?pin=v69";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
 
+import "https://unpkg.com/construct-style-sheets-polyfill";
+
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
   fontLigatures: true,
@@ -19,17 +21,23 @@ export const editorOptions: EditorProps["options"] = {
   tabSize: 2,
 };
 
-const tabs: ({ name: string } & JSX.IntrinsicElements["button"])[] = [
-  { name: "HTML" },
-  { name: "Config" },
-  {
-    name: "CSS",
-  },
-  {
-    name: "Preview",
-    className: "lg:hidden",
-  },
-];
+const tabs:
+  ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
+    { name: "html", icon: "i-vscode-icons-file-type-html w-4 h-4" },
+    {
+      name: "config",
+      icon: "i-vscode-icons-file-type-typescript-official w-4 h-4",
+    },
+    {
+      name: "css",
+      icon: "i-vscode-icons-file-type-css w-4 h-4",
+    },
+    {
+      name: "preview",
+      className: "lg:hidden",
+      icon: "i-mdi-tablet-dashboard w-4 h-4",
+    },
+  ];
 
 export default function Playground() {
   const [input, setInput] = useState<string | undefined>(CODE);
@@ -46,7 +54,7 @@ export default function Playground() {
 
   const theme = useColorModeValue("light", "vs-dark");
   const cssStyle = useMemo(() => {
-    if (!window.CSSStyleSheet || !cssSheet) return;
+    if (!window || !cssSheet) return;
     const style = new CSSStyleSheet();
     (style as any).replaceSync(cssSheet);
 
@@ -78,16 +86,16 @@ export default function Playground() {
     return () => fn.dispose();
   }, [monacoSet, rawConfig]);
 
-  const queryWorker = (rawConfig: string) => {
-    const ws = new Worker("./worker.js");
-    ws.onmessage = ({ data }) => {
+  useEffect(() => {
+    const sw = new Worker("./worker.js", { type: "module" });
+    sw.onmessage = ({ data }) => {
       setCSSSheet(data);
-      ws.terminate();
+      sw.terminate();
     };
-    ws.postMessage({ code: input, rawConfig });
-  };
+    sw.postMessage({ code: input, rawConfig: rawConfigDiff });
 
-  useEffect(() => queryWorker(rawConfigDiff), [input, rawConfigDiff]);
+    return () => sw.terminate();
+  }, [input, rawConfigDiff]);
 
   const enabledSave = useMemo<boolean>(() => rawConfigDiff !== rawConfig, [
     rawConfigDiff,
@@ -111,24 +119,28 @@ export default function Playground() {
           <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
             <div className="py-1 px-4 lg:pl-8 shadow flex justify-between">
               <Tab.List className="space-x-2">
-                {tabs.map(({ name, className, ...rest }) => (
+                {tabs.map(({ name, className, icon, ...rest }) => (
                   <Tab
                     key={name}
                     {...rest}
                     className={({ selected }) =>
-                      clsx({ "text-amber-500": selected }, className)}
+                      clsx(
+                        { "text-amber-500 italic": selected },
+                        className,
+                      )}
                   >
-                    <span>
+                    <span className={clsx(icon)} />
+                    <span className="align-middle mx-1">
                       {name}
                     </span>
                     <span
                       className={clsx(
-                        "ml-1 i-mdi-circle w-2 h-2 text-teal-500",
-                        name === "Config" && enabledSave
+                        "i-mdi-circle w-2 h-2 text-teal-500",
+                        name === "config" && enabledSave
                           ? "visible"
                           : "invisible",
                         {
-                          "invisible": name !== "Config",
+                          "invisible": name !== "config",
                         },
                       )}
                     />
@@ -140,9 +152,12 @@ export default function Playground() {
                 <button
                   disabled={!enabledSave}
                   onClick={save}
-                  className={clsx("disabled:text-gray-500 i-mdi-content-save", {
-                    "hidden": selectedIndex !== 1,
-                  })}
+                  className={clsx(
+                    "disabled:text-gray-400 i-mdi-content-save text-teal-500",
+                    {
+                      "hidden": selectedIndex !== 1,
+                    },
+                  )}
                   title="save"
                 />
               </section>
