@@ -3,6 +3,7 @@ import type { ErrorLike, Message } from "~/utils/message.ts";
 
 declare global {
   interface Window {
+    importScripts: (...urls: (string | URL)[]) => void;
     __shimport__: {
       load(url: string): Promise<any>;
     };

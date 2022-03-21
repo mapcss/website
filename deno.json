@@ -6,8 +6,7 @@
       "dom.iterable",
       "dom.asynciterable",
       "deno.ns",
-      "deno.unstable",
-      "webworker"
+      "deno.unstable"
     ],
     "jsx": "react"
   },

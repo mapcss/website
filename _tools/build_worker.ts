@@ -16,6 +16,7 @@ await esbuild.build({
   treeShaking: true,
   target: "es2018",
   minify: true,
+  watch: true,
 });
 
-esbuild.stop();
+// esbuild.stop();
