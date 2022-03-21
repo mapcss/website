@@ -1,4 +1,6 @@
 export type Message = {
   type: "error";
-  value: Error;
+  value: ErrorLike;
 } | { type: "content"; value: string };
+
+export type ErrorLike = Pick<Error, "message" | "name" | "stack">;

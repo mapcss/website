@@ -10,7 +10,7 @@ import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?pin=v69";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
-import type { Message } from "~/utils/message.ts";
+import type { ErrorLike, Message } from "~/utils/message.ts";
 import { dynamic } from "aleph/react";
 import "https://unpkg.com/construct-style-sheets-polyfill";
 
@@ -51,7 +51,7 @@ export default function Playground() {
   const [selectedIndex, setSelectedIndex] = useState<number>();
 
   const [monacoSet, setMonacoSet] = useState<Parameters<OnMount>>();
-  const [error, setError] = useState<Error>();
+  const [error, setError] = useState<ErrorLike>();
 
   const save = () => setRawConfigDiff(rawConfig);
 

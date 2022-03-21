@@ -1,8 +1,9 @@
 import React from "react";
 import { clsx } from "~/deps.ts";
+import type { ErrorLike } from "~/utils/message.ts";
 
 export type Props = {
-  e: Error;
+  e: ErrorLike;
 } & JSX.IntrinsicElements["div"];
 export default function Err({ e, className, ...rest }: Props): JSX.Element {
   return (
