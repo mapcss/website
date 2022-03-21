@@ -229,7 +229,6 @@ export default function Playground() {
                     >
                       <div
                         className={clsx(
-                          "whitespace-pre antialiased overflow-scroll grid place-content-center",
                           darkClass,
                         )}
                         dangerouslySetInnerHTML={{ __html: input }}
@@ -249,10 +248,7 @@ export default function Playground() {
             className="hidden lg:block"
           >
             <div
-              className={clsx(
-                "whitespace-pre antialiased overflow-scroll grid place-content-center",
-                darkClass,
-              )}
+              className={clsx(darkClass)}
               dangerouslySetInnerHTML={{ __html: input }}
             >
             </div>

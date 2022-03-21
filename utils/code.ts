@@ -1,34 +1,32 @@
 export const CODE =
-  `<div class="min-h-screen py-6 flex flex-col justify-center relative overflow-hidden sm:py-12">
-  <div class="absolute inset-0 bg-center"></div>
-    <div class="relative px-6 pt-10 pb-8 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg sm:px-10">
-      <div class="max-w-md mx-auto">
-        <div class="divide-y divide-gray-300/50">
-          <div class="py-8 text-base leading-7 space-y-6">
-            <p>An advanced online playground for MapCSS, including support for things like:</p>
-            <ul class="space-y-4">
-              <li class="flex items-center">
-              <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span></span>
-            <p class="ml-4">
-              Full customizable, on-demand
-              <code class="text-sm font-bold text-gray-900 dark:text-white">mapcss.config.ts</code>
-            </p>
-          </li>
-          <li class="flex items-center">
-            <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span>
-            <p class="ml-4">
-              Preview output <code class="text-sm font-bold text-gray-900 dark:text-white">CSS</code> and <code class="text-sm font-bold text-gray-900 dark:text-white">Element</code>
-            </p>
-          </li>
-        </ul>
-        <p>Perfect for learning how the framework works, prototyping a new idea, or creating a demo to share online.</p>
-      </div>
-      <div class="pt-8 text-base leading-7 font-semibold">
-        <p class="text-gray-900 dark:text-white">Want to dig deeper into MapCSS?</p>
-        <p>
-          <a href="/docs/installation" class="text-amber-500 hover:text-amber-600">Read the docs &rarr;</a>
-        </p>
-      </div>
+  `<div class="min-h-screen overflow-hidden sm:grid place-items-center">
+  <div class="p-6 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg sm:px-10">
+    <div class="max-w-md mx-auto">
+      <div class="divide-y divide-gray-300/50">
+        <div class="py-4 sm:py-8 text-base leading-7 space-y-6">
+          <p>An advanced online playground for MapCSS, including support for things like:</p>
+          <ul class="space-y-4">
+            <li class="flex items-center">
+            <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span></span>
+          <p class="ml-4">
+            Full customizable, on-demand
+            <code class="text-sm font-bold text-gray-900 dark:text-white">mapcss.config.ts</code>
+          </p>
+        </li>
+        <li class="flex items-center">
+          <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span>
+          <p class="ml-4">
+            Preview output <code class="text-sm font-bold text-gray-900 dark:text-white">CSS</code> and <code class="text-sm font-bold text-gray-900 dark:text-white">Element</code>
+          </p>
+        </li>
+      </ul>
+      <p>Perfect for learning how the framework works, prototyping a new idea, or creating a demo to share online.</p>
+    </div>
+    <div class="pt-8 text-base leading-7 font-semibold">
+      <p class="text-gray-900 dark:text-white">Want to dig deeper into MapCSS?</p>
+      <p>
+        <a href="/docs/installation" class="text-amber-500 hover:text-amber-600">Read the docs &rarr;</a>
+      </p>
     </div>
   </div>
 </div>
