@@ -2,6 +2,7 @@ import React from "react";
 import ToggleDark from "~/components/toggle_dark.tsx";
 import { clsx } from "~/deps.ts";
 import useOverlay from "~/hooks/use_overlay.ts";
+import { useRouter } from "aleph/react";
 
 type Props = {
   innerClassName: string;
@@ -11,6 +12,7 @@ export function Header(
   { innerClassName }: Partial<Props>,
 ) {
   const [isShow, { toggle, off }] = useOverlay();
+  const { routePath } = useRouter();
   return (
     <header className="sticky z-1 top-0 w-full backdrop-blur lg:border-b lg:border-slate-900/10 dark:border-slate-50/[0.06] bg-white supports-backdrop-blur:bg-white/95 dark:bg-dark-900/75">
       <div className={clsx(innerClassName)}>
@@ -21,12 +23,21 @@ export function Header(
             <nav className="text-sm hidden sm:block leading-6 font-semibold text-slate-700 dark:text-slate-200">
               <ul className="flex space-x-8">
                 <li>
-                  <a href="/docs/installation">
+                  <a
+                    className={clsx({
+                      "text-amber-500": routePath.startsWith("/docs/"),
+                    })}
+                    href="/docs/installation"
+                  >
                     Docs
                   </a>
                 </li>
                 <li>
-                  <a href="/playground">
+                  <a
+                    rel="nav"
+                    data-active-className="text-amber-500"
+                    href="/playground"
+                  >
                     Playground
                   </a>
                 </li>
