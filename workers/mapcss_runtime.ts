@@ -1,4 +1,4 @@
-import "https://esm.sh/object.hasown";
+import "~/utils/has_own_polyfill.ts";
 import { generate } from "@mapcss/core/generate.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
