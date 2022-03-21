@@ -12,8 +12,8 @@ import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?pin=v69";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 import { dynamic } from "aleph/react";
+
 import "https://unpkg.com/construct-style-sheets-polyfill";
-import "https://esm.sh/module-workers-polyfill";
 
 const Err = dynamic(() => import("~/components/err.tsx"));
 
@@ -94,7 +94,7 @@ export default function Playground() {
   const [sw, setSw] = useState<Worker>();
 
   useEffect(() => {
-    setSw(new Worker("./worker.js", { type: "module" }));
+    setSw(new Worker("./worker.js"));
   }, []);
   useEffect(() => {
     if (!sw) return;
@@ -221,7 +221,7 @@ export default function Playground() {
               </Tab.Panel>
               <Tab.Panel className="h-full">
                 {error
-                  ? <Err className="h-full" e={error} />
+                  ? <Err file="config" className="h-full" e={error} />
                   : cssStyle && input && (
                     <root.div
                       mode="closed"
@@ -241,7 +241,7 @@ export default function Playground() {
             </Tab.Panels>
           </Tab.Group>
         </div>
-        {error ? <Err className="hidden lg:block" e={error} />
+        {error ? <Err file="config" className="hidden lg:block" e={error} />
         : cssStyle && input && (
           <root.div
             mode="closed"

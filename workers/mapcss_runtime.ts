@@ -1,7 +1,16 @@
 import { generate } from "@mapcss/core/generate.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
+declare global {
+  interface Window {
+    __shimport__: {
+      load(url: string): Promise<any>;
+    };
+  }
+}
+
 let configCache: [string, object] | undefined;
+let importShimCache: ((url: string) => Promise<any>) | undefined;
 
 self.addEventListener(
   "message",
@@ -11,6 +20,7 @@ self.addEventListener(
     >,
   ) => {
     const uri = `data:text/javascript;base64,${btoa(rawConfig)}`;
+
     if (configCache?.[0] === uri) {
       const module = configCache[1];
       const { css } = generate(
@@ -21,7 +31,16 @@ self.addEventListener(
       handleException(() => self.postMessage(msg));
     } else {
       try {
-        const module = await import(uri);
+        const importShim = importShimCache
+          ? importShimCache
+          : await (async () => {
+            const isSupported = await isSupportImport();
+            const importShim = getImportShim(isSupported);
+            importShimCache = importShim;
+            return importShim;
+          })();
+
+        const module = await importShim(uri);
         const config = module.default ?? {};
         configCache = [uri, config];
         const { css } = generate(
@@ -58,5 +77,28 @@ function handleException(fn: () => any): void {
       const msg: Message = { type: "error", value: toErrorLike(e) };
       self.postMessage(msg);
     }
+  }
+}
+
+async function isSupportImport(): Promise<boolean> {
+  try {
+    await (0, eval)('import("")');
+    return true;
+  } catch (e) {
+    if (e instanceof TypeError) {
+      return true;
+    }
+    return false;
+  }
+}
+
+function getImportShim(
+  isSupportImport: boolean,
+): (url: string) => Promise<any> {
+  if (isSupportImport) {
+    return (url: string) => import(url);
+  } else {
+    self.importScripts("https://unpkg.com/shimport@2.0.5/index.js");
+    return self.__shimport__.load;
   }
 }

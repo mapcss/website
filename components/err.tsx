@@ -4,8 +4,11 @@ import type { ErrorLike } from "~/utils/message.ts";
 
 export type Props = {
   e: ErrorLike;
+  file: string;
 } & JSX.IntrinsicElements["div"];
-export default function Err({ e, className, ...rest }: Props): JSX.Element {
+export default function Err(
+  { e, className, file, ...rest }: Props,
+): JSX.Element {
   return (
     <div
       className={clsx(
@@ -16,7 +19,7 @@ export default function Err({ e, className, ...rest }: Props): JSX.Element {
     >
       <h2 className="space-x-2">
         <span className="i-mdi-alert w-5 h-5 text-red-800" />
-        <span className="text-red-800 font-bold">{e.name}</span>
+        <span className="text-red-800 font-bold">{e.name} at {file}</span>
       </h2>
       <code className="text-red-700">
         {e.message}

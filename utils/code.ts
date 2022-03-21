@@ -8,14 +8,14 @@ export const CODE =
             <p>An advanced online playground for MapCSS, including support for things like:</p>
             <ul class="space-y-4">
               <li class="flex items-center">
-              <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle"></span>
+              <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span></span>
             <p class="ml-4">
               Full customizable, on-demand
               <code class="text-sm font-bold text-gray-900 dark:text-white">mapcss.config.ts</code>
             </p>
           </li>
           <li class="flex items-center">
-            <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle"></span>
+            <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span>
             <p class="ml-4">
               Preview output <code class="text-sm font-bold text-gray-900 dark:text-white">CSS</code> and <code class="text-sm font-bold text-gray-900 dark:text-white">Element</code>
             </p>
@@ -55,16 +55,18 @@ export const RAW_CONFIG = `/**
  * \`\`\`
  */
 import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
-import { presetSvg, iconifyJSON } from "https://esm.sh/@mapcss/preset-svg@beta"
 
-const res = await fetch("https://esm.sh/@iconify-json/mdi/icons.json")
-const mdi = await res.json()
-// In supported browsers you can do the following:
+/** Depending on the Browser, you can try the following features:
+ * - Chrome 80+
+ * - iOS Safari 15+
+ * - Other browsers that support module workers
+ */
+// import { presetSVG, iconifyJSON } from "https://esm.sh/@mapcss/preset-svg@beta"
 // import mdi from "https://esm.sh/@iconify-json/mdi/icons.json" assert {
 // type: "json",
 // };
+// import autoprefixer from "https://esm.sh/autoprefixer"
 
-import autoprefixer from "https://esm.sh/autoprefixer"
 export default {
   separator: "-",
   variablePrefix: "map-",
@@ -72,14 +74,12 @@ export default {
     presetTw({
       darkMode: "class",
     }),
-    presetSvg({
-      svgMap: {
-        mdi: iconifyJSON(mdi),
-      }
-    })
+    // presetSVG({
+    //   mdi: iconifyJSON(mdi)
+    // })
   ],
   minify: false,
   css: preflightCSS,
-  postcssPlugin: [autoprefixer()]
+  // postcssPlugin: [autoprefixer]
 }
 `;
