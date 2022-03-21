@@ -69,7 +69,7 @@ export default function Playground() {
   const handleMound: OnMount = (editor, monaco) => {
     monaco.languages.typescript.typescriptDefaults
       .setDiagnosticsOptions({
-        noSemanticValidation: true,
+        diagnosticCodesToIgnore: [2792],
       });
 
     setMonacoSet([editor, monaco]);
