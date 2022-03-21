@@ -10,8 +10,11 @@ import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?pin=v69";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
-
+import type { Message } from "~/utils/message.ts";
+import { dynamic } from "aleph/react";
 import "https://unpkg.com/construct-style-sheets-polyfill";
+
+const Err = dynamic(() => import("~/components/err.tsx"));
 
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
@@ -48,6 +51,7 @@ export default function Playground() {
   const [selectedIndex, setSelectedIndex] = useState<number>();
 
   const [monacoSet, setMonacoSet] = useState<Parameters<OnMount>>();
+  const [error, setError] = useState<Error>();
 
   const save = () => setRawConfigDiff(rawConfig);
 
@@ -98,8 +102,15 @@ export default function Playground() {
 
   useEffect(() => {
     if (!sw) return;
-    sw.onmessage = ({ data }) => {
-      setCSSSheet(data);
+    sw.onmessage = ({ data }: MessageEvent<Message>) => {
+      if (data.type === "error") {
+        setError(data.value);
+      } else {
+        if (error) {
+          setError(undefined);
+        }
+        setCSSSheet(data.value);
+      }
     };
     sw.postMessage({ code: input, rawConfig: rawConfigDiff });
   }, [sw, input, rawConfigDiff]);
@@ -122,9 +133,9 @@ export default function Playground() {
       </style>
       <Header />
       <main className="h-[calc(100%_-_61px)] grid lg:grid-cols-2 overflow-hidden">
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col lg:border-r border-slate-900/10">
           <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-            <div className="py-1 px-4 lg:pl-8 shadow flex justify-between">
+            <div className="py-1 px-4 lg:pl-8 flex justify-between">
               <Tab.List className="space-x-2">
                 {tabs.map(({ name, className, icon, ...rest }) => (
                   <Tab
@@ -207,27 +218,30 @@ export default function Playground() {
                   theme={theme}
                 />
               </Tab.Panel>
-              <Tab.Panel>
-                {cssStyle && input && (
-                  <root.div
-                    mode="closed"
-                    styleSheets={[cssStyle]}
-                  >
-                    <div
-                      className={clsx(
-                        "whitespace-pre antialiased overflow-scroll grid place-content-center",
-                        darkClass,
-                      )}
-                      dangerouslySetInnerHTML={{ __html: input }}
+              <Tab.Panel className="h-full">
+                {error
+                  ? <Err className="h-full" e={error} />
+                  : cssStyle && input && (
+                    <root.div
+                      mode="closed"
+                      styleSheets={[cssStyle]}
                     >
-                    </div>
-                  </root.div>
-                )}
+                      <div
+                        className={clsx(
+                          "whitespace-pre antialiased overflow-scroll grid place-content-center",
+                          darkClass,
+                        )}
+                        dangerouslySetInnerHTML={{ __html: input }}
+                      >
+                      </div>
+                    </root.div>
+                  )}
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
         </div>
-        {cssStyle && input && (
+        {error ? <Err className="hidden lg:block" e={error} />
+        : cssStyle && input && (
           <root.div
             mode="closed"
             styleSheets={[cssStyle]}
