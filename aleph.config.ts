@@ -5,7 +5,7 @@ import {
   generate,
   ModifierDefinition,
 } from "@mapcss/core/mod.ts";
-import { iconifyJSON, presetSvg } from "@mapcss/preset_svg/mod.ts";
+import { iconifyJSON, presetSVG } from "@mapcss/preset_svg/mod.ts";
 import { chain } from "@mapcss/preset_svg/deps.ts";
 import { default as AtRule } from "https://deno.land/x/postcss_core@v1.0.0-beta.1/lib/at-rule.js";
 import { presetTypography } from "@mapcss/preset_typography/mod.ts";
@@ -76,13 +76,12 @@ const base: MapcssConfig = {
         ":not(pre) > code::before, :not(pre) > code::after": false,
       },
     }),
-    presetSvg({
-      svgMap: {
-        mdi: iconifyJSON(mdi),
-        vscode: {
-          icons: iconifyJSON(vscodeIcons),
-        },
+    presetSVG({
+      mdi: iconifyJSON(mdi),
+      vscode: {
+        icons: iconifyJSON(vscodeIcons),
       },
+    }, {
       declaration: {
         display: "inline-block",
         verticalAlign: "middle",
