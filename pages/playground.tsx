@@ -136,7 +136,7 @@ export default function Playground() {
       <main className="h-[calc(100%_-_61px)] grid lg:grid-cols-2 overflow-hidden">
         <div className="h-full flex flex-col lg:border-r border-slate-900/10">
           <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-            <div className="py-1 px-4 lg:pl-8 flex justify-between">
+            <div className="px-4 lg:pl-8 inline-flex justify-between whitespace-pre overflow-x-scroll">
               <Tab.List className="space-x-2">
                 {tabs.map(({ name, className, icon, ...rest }) => (
                   <Tab
@@ -144,7 +144,9 @@ export default function Playground() {
                     {...rest}
                     className={({ selected }) =>
                       clsx(
-                        { "text-amber-500 italic": selected },
+                        {
+                          "border-amber-500 p-0.5 italic border-b-1": selected,
+                        },
                         className,
                       )}
                   >
