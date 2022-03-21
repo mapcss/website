@@ -3,11 +3,9 @@ import {
   Config as MapcssConfig,
   filterDeclaration,
   generate,
-  ModifierDefinition,
 } from "@mapcss/core/mod.ts";
 import { iconifyJSON, presetSVG } from "@mapcss/preset_svg/mod.ts";
 import { chain } from "@mapcss/preset_svg/deps.ts";
-import { default as AtRule } from "https://deno.land/x/postcss_core@v1.0.0-beta.1/lib/at-rule.js";
 import { presetTypography } from "@mapcss/preset_typography/mod.ts";
 import { preflightCSS, presetTw } from "@mapcss/preset_tw/mod.ts";
 import { deepMerge } from "https://deno.land/std@0.130.0/collections/deep_merge.ts";
@@ -32,29 +30,7 @@ import { toObject } from "https://deno.land/x/postcss_js@v1.0.0-beta.4/mod.ts";
 import { isAtRule, isRule } from "@mapcss/core/utils/assert.ts";
 import type { Config } from "aleph/types";
 
-const supportBackdropBlur: ModifierDefinition = (root) => {
-  root.walk((node) => {
-    if (isAtRule(node) || isRule(node)) {
-      const atRule = new AtRule({
-        name: "supports",
-        params:
-          "(backdrop-filter: blur(0)) or (-webkit-backdrop-filter: blur(0))",
-        nodes: [node],
-      });
-      node.replaceWith(atRule);
-    }
-  });
-  return root;
-};
-
 const base: MapcssConfig = {
-  modifierMap: {
-    supports: {
-      backdrop: {
-        blur: supportBackdropBlur,
-      },
-    },
-  },
   preset: [
     presetTw({
       darkMode: "class",
