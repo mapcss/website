@@ -44,14 +44,14 @@ export const RAW_CONFIG = `/**
  *
  * \`\`\`ts
  * import { generate } from "https://deno.land/x/mapcss/core/mod.ts"
- * import { presetSvg } from "https://x.nest.land/mapcss/preset_svg/mod.ts"
+ * import { presetSVG } from "https://x.nest.land/mapcss/preset_svg/mod.ts"
  * \`\`\`
  *
  * Browser
  * \`\`\`js
  * import { presetTw } from "https://esm.sh/@mapcss/preset-tw"
  * import { presetTypography } from "https://esm.sh/@mapcss/preset-typography"
- * import { presetSvg } from "https://esm.sh/@mapcss/preset-svg"
+ * import { presetSVG } from "https://esm.sh/@mapcss/preset-svg"
  * \`\`\`
  */
 import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
