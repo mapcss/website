@@ -13,6 +13,7 @@ import { CODE, RAW_CONFIG } from "~/utils/code.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 import { dynamic } from "aleph/react";
 import "https://unpkg.com/construct-style-sheets-polyfill";
+import "https://esm.sh/module-workers-polyfill";
 
 const Err = dynamic(() => import("~/components/err.tsx"));
 
