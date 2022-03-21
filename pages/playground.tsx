@@ -145,9 +145,10 @@ export default function Playground() {
                     className={({ selected }) =>
                       clsx(
                         {
-                          "border-amber-500 p-0.5 italic border-b-1": selected,
+                          "border-amber-500 italic border-b-1": selected,
                         },
                         className,
+                        "pl-2 py-0.5",
                       )}
                   >
                     <span className={clsx(icon)} />
