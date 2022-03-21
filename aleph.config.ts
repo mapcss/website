@@ -107,6 +107,13 @@ const config: MapcssConfig = {
     ).map(
       toObject,
     ).unwrap(),
+    "button:focus": {
+      ...chain(generate("outline-none", base).ast).map(
+        filterDeclaration,
+      ).map(
+        toObject,
+      ).unwrap(),
+    },
   }),
   cssMap: {
     max: {
