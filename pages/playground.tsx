@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
   OnMount,
-} from "https://esm.sh/@monaco-editor/react@4.3.1";
+} from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v72";
 import root from "https://esm.sh/react-shadow";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
@@ -67,10 +67,10 @@ export default function Playground() {
     return style;
   }, [cssSheet]);
 
-  const handleMound: OnMount = (editor, monaco) => {
+  const handleMount: OnMount = (editor, monaco) => {
     monaco.languages.typescript.typescriptDefaults
       .setDiagnosticsOptions({
-        diagnosticCodesToIgnore: [2792],
+        diagnosticCodesToIgnore: [2792, 2821],
       });
 
     setMonacoSet([editor, monaco]);
@@ -79,12 +79,11 @@ export default function Playground() {
   useEffect(() => {
     if (!monacoSet) return;
     const [editor, monaco] = monacoSet;
-
     const fn = editor.addAction({
       label: "save",
       id: "save",
       keybindings: [
-        monaco.KeyMod.CtrlCmd | (monaco.KeyCode as any).KEY_S,
+        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
       ],
       run: save,
     });
@@ -213,7 +212,7 @@ export default function Playground() {
                   onChange={(value) => setRawConfig(value ?? "")}
                   value={rawConfig}
                   theme={theme}
-                  onMount={handleMound}
+                  onMount={handleMount}
                 />
               </Tab.Panel>
               <Tab.Panel className="h-full">
