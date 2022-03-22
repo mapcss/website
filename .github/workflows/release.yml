@@ -22,9 +22,11 @@ jobs:
             /home/runner/.cache/deno
 
       - name: build
+        env:
+          MEASUREMENT_ID: G-WR62RFPJ16
         run: |
           deno run -A https://deno.land/x/aleph/install.ts
-          deno run -A _tools/build_worker.ts 
+          deno run -A _tools/build_worker.ts
           aleph build
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
