@@ -7,6 +7,7 @@ export type Message =
   | {
     type: "progress";
     value: "compile" | "import";
+    end?: true;
   };
 
 export type ErrorLike = Pick<Error, "message" | "name" | "stack">;
