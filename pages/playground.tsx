@@ -131,11 +131,13 @@ export default function Playground() {
     rawConfig,
   ]);
 
+  const isPreviewActive = useMemo(() => selectedIndex === 3, [selectedIndex]);
+
   useResize((ev) => {
-    if (selectedIndex === 3 && (ev.currentTarget as Window).innerWidth > 1024) {
+    if ((ev.currentTarget as Window).innerWidth > 1024) {
       setSelectedIndex(0);
     }
-  }, { deps: [], enabled: selectedIndex === 3 });
+  }, { deps: [], enabled: isPreviewActive });
 
   return (
     <div className="h-screen flex flex-col">
