@@ -105,10 +105,12 @@ export default function Playground() {
     if (!sw) return;
     sw.onmessage = ({ data }: MessageEvent<Message>) => {
       if (data.type === "error") {
+        setProgress(false);
         setError(data.value);
       } else if (data.type === "content") {
         if (error) {
           setError(undefined);
+          setProgress(false);
         }
         setCSSSheet(data.value);
       } else {
@@ -259,7 +261,7 @@ export default function Playground() {
               </div>
             )
             : error
-            ? <Err file="config" e={error} />
+            ? <Err file="config" className="h-full" e={error} />
             : cssStyle && input && (
               <root.div
                 className="h-full"
