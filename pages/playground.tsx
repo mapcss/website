@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
   OnMount,
-} from "https://esm.sh/@monaco-editor/react?pin=v69";
+} from "https://esm.sh/@monaco-editor/react@4.3.1?deps=react@17.0.2&pin=v71";
 import root from "https://esm.sh/react-shadow";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
-import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?pin=v69";
+import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?deps=react@17.0.2&pin=v71";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 import { dynamic } from "aleph/react";
@@ -48,6 +48,7 @@ export default function Playground() {
   const [rawConfig, setRawConfig] = useState<string>(
     RAW_CONFIG,
   );
+  const [progress, setProgress] = useState<boolean>(false);
   const [rawConfigDiff, setRawConfigDiff] = useState<string>(RAW_CONFIG);
   const [selectedIndex, setSelectedIndex] = useState<number>();
 
@@ -106,11 +107,19 @@ export default function Playground() {
     sw.onmessage = ({ data }: MessageEvent<Message>) => {
       if (data.type === "error") {
         setError(data.value);
-      } else {
+      } else if (data.type === "content") {
         if (error) {
           setError(undefined);
         }
         setCSSSheet(data.value);
+      } else {
+        if (data.value === "import") {
+          if (data.end) {
+            setProgress(false);
+          } else {
+            setProgress(true);
+          }
+        }
       }
     };
     sw.postMessage({ code: input, rawConfig: rawConfigDiff });
@@ -243,20 +252,32 @@ export default function Playground() {
             </Tab.Panels>
           </Tab.Group>
         </div>
-        {error ? <Err file="config" className="hidden lg:block" e={error} />
-        : cssStyle && input && (
-          <root.div
-            mode="closed"
-            styleSheets={[cssStyle]}
-            className="hidden lg:block"
-          >
-            <div
-              className={clsx(darkClass)}
-              dangerouslySetInnerHTML={{ __html: input }}
-            >
-            </div>
-          </root.div>
-        )}
+
+        <div className="hidden lg:block">
+          {progress
+            ? (
+              <div className="h-full grid place-items-center">
+                <div className="flex flex-col items-center space-y-2 text-amber-500">
+                  <span className="i-mdi-loading animate-spin w-12 h-12" />
+                  <span className="text-xl">Fetching modules...</span>
+                </div>
+              </div>
+            )
+            : error
+            ? <Err file="config" e={error} />
+            : cssStyle && input && (
+              <root.div
+                mode="closed"
+                styleSheets={[cssStyle]}
+              >
+                <div
+                  className={clsx(darkClass)}
+                  dangerouslySetInnerHTML={{ __html: input }}
+                >
+                </div>
+              </root.div>
+            )}
+        </div>
       </main>
     </>
   );

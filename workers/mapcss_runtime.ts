@@ -1,5 +1,5 @@
 import "~/utils/has_own_polyfill.ts";
-import { generate } from "@mapcss/core/generate.ts";
+import { extractSimple, generate } from "@mapcss/core/mod.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
 declare global {
@@ -21,18 +21,22 @@ self.addEventListener(
       { code: string; rawConfig: string }
     >,
   ) => {
+    const tokens = extractSimple(code);
     const uri = `data:text/javascript;base64,${btoa(rawConfig)}`;
 
     if (configCache?.[0] === uri) {
       const module = configCache[1];
       const { css } = generate(
-        code,
+        tokens,
         module ?? {},
       );
       const msg: Message = { type: "content", value: css };
       handleException(() => self.postMessage(msg));
     } else {
       try {
+        const _msg: Message = { type: "progress", value: "import" };
+        handleException(() => self.postMessage(_msg));
+
         const importShim = importShimCache
           ? importShimCache
           : await (async () => {
@@ -43,10 +47,13 @@ self.addEventListener(
           })();
 
         const module = await importShim(uri);
+        const _msgImport: Message = { ..._msg, end: true };
+        handleException(() => self.postMessage(_msgImport));
+
         const config = module.default ?? {};
         configCache = [uri, config];
         const { css } = generate(
-          code,
+          tokens,
           config,
         );
         const msg: Message = { type: "content", value: css };
