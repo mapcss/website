@@ -1,5 +1,5 @@
 export const CODE =
-  `<div class="min-h-screen overflow-hidden sm:grid place-items-center">
+  `<div class="h-full overflow-hidden sm:grid place-items-center">
   <div class="p-6 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg sm:px-10">
     <div class="max-w-md mx-auto">
       <div class="divide-y divide-gray-300/50">

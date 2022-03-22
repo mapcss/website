@@ -73,10 +73,6 @@ export default function Playground() {
         diagnosticCodesToIgnore: [2792],
       });
 
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-    });
-
     setMonacoSet([editor, monaco]);
   };
 
@@ -141,12 +137,9 @@ export default function Playground() {
   }, { deps: [], enabled: selectedIndex === 3 });
 
   return (
-    <>
-      <style>
-        {`body > #__aleph {height: 100vh}`}
-      </style>
-      <Header />
-      <main className="h-[calc(100%_-_61px)] grid lg:grid-cols-2 overflow-hidden">
+    <div className="h-screen flex flex-col">
+      <Header className="flex-none" />
+      <main className="lg:grid flex-1 grid-cols-2">
         <div className="h-full flex flex-col lg:border-r border-slate-900/10">
           <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
             <div className="px-4 lg:pl-8 inline-flex justify-between whitespace-pre overflow-x-scroll">
@@ -240,13 +233,12 @@ export default function Playground() {
                   ? <Err file="config" className="h-full" e={error} />
                   : cssStyle && input && (
                     <root.div
+                      className="h-full"
                       mode="closed"
                       styleSheets={[cssStyle]}
                     >
                       <div
-                        className={clsx(
-                          darkClass,
-                        )}
+                        className={clsx("h-full", darkClass)}
                         dangerouslySetInnerHTML={{ __html: input }}
                       >
                       </div>
@@ -257,7 +249,7 @@ export default function Playground() {
           </Tab.Group>
         </div>
 
-        <div className="hidden lg:block">
+        <div className="h-full hidden lg:block">
           {progress
             ? (
               <div className="h-full grid place-items-center">
@@ -271,18 +263,18 @@ export default function Playground() {
             ? <Err file="config" e={error} />
             : cssStyle && input && (
               <root.div
+                className="h-full"
                 mode="closed"
                 styleSheets={[cssStyle]}
               >
                 <div
-                  className={clsx(darkClass)}
+                  className={clsx("h-full", darkClass)}
                   dangerouslySetInnerHTML={{ __html: input }}
-                >
-                </div>
+                />
               </root.div>
             )}
         </div>
       </main>
-    </>
+    </div>
   );
 }
