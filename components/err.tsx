@@ -12,7 +12,7 @@ export default function Err(
   return (
     <div
       className={clsx(
-        "p-4 bg-gradient-to-br from-white to-red-900 dark:from-dark-900",
+        "p-4 bg-gradient-to-b from-white to-red-900 dark:from-dark-900",
         className,
       )}
       {...rest}
