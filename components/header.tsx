@@ -6,15 +6,20 @@ import { useRouter } from "aleph/react";
 
 type Props = {
   innerClassName: string;
-};
+} & JSX.IntrinsicElements["header"];
 
 export function Header(
-  { innerClassName }: Partial<Props>,
+  { innerClassName, className, ...rest }: Partial<Props>,
 ) {
   const [isShow, { toggle, off }] = useOverlay();
   const { routePath } = useRouter();
   return (
-    <header className="sticky z-1 top-0 w-full lg:border-b lg:border-slate-900/10 dark:border-slate-50/[0.06] backdrop-blur bg-opacity-50">
+    <header
+      className={clsx(
+        className,
+        "lg:border-b lg:border-slate-900/10 dark:border-slate-50/[0.06] backdrop-blur bg-opacity-50",
+      )}
+    >
       <div className={clsx(innerClassName)}>
         <div className="flex justify-between py-4 border-b border-slate-900/10 lg:px-8 lg:border-0 dark:border-slate-300/10 mx-4 lg:mx-0">
           <a href="/" className="font-semibold text-xl">MapCSS</a>
