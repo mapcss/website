@@ -1,12 +1,8 @@
-import {
-  type Config as MapCSSConfig,
-  extractBySpace,
-  generate,
-} from "@mapcss/core/mod.ts";
+import { extractSimple, generate, GenerateConfig } from "@mapcss/core/mod.ts";
 import type { Plugin } from "aleph/types";
 import { expandGlob, WalkEntry } from "https://deno.land/std@0.125.0/fs/mod.ts";
 
-export type Config = MapCSSConfig & {
+export type Config = GenerateConfig & {
   /** watch file type
    * @default ['tsx', 'jsx']
    */
@@ -33,7 +29,7 @@ export default function mapcssPlugin(
         });
 
         aleph.onTransform(/^(.+)\.tsx|\.mdx$/, ({ code }) => {
-          const _tokens = extractBySpace(code);
+          const _tokens = extractSimple(code);
           _tokens.forEach((token) => {
             tokens.add(token);
           });
@@ -56,7 +52,7 @@ export default function mapcssPlugin(
           Deno.readTextFileSync(path)
         );
         const allCode = texts.reduce((acc, cur) => `${acc}\n${cur}`, "");
-        const { css } = generate(allCode, { minify: isProduction, ...rest });
+        const { css } = generate(extractSimple(allCode), { minify: isProduction, ...rest });
         if (!css) return;
 
         aleph.onRender(({ html }) => {

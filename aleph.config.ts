@@ -1,8 +1,8 @@
 import mapcssPlugin from "./plugins/mapcss.ts";
 import {
-  Config as MapcssConfig,
   filterDeclaration,
   generate,
+  GenerateConfig,
 } from "@mapcss/core/mod.ts";
 import { iconifyJSON, presetSVG } from "@mapcss/preset_svg/mod.ts";
 import { chain } from "@mapcss/preset_svg/deps.ts";
@@ -27,10 +27,9 @@ import vscodeIcons from "https://esm.sh/@iconify-json/vscode-icons/icons.json" a
 };
 import autoprefixer from "https://deno.land/x/postcss_autoprefixer@0.1.1/mod.js";
 import { toObject } from "https://deno.land/x/postcss_js@v1.0.0-beta.4/mod.ts";
-import { isAtRule, isRule } from "@mapcss/core/utils/assert.ts";
 import type { Config } from "aleph/types";
 
-const base: MapcssConfig = {
+const base: GenerateConfig = {
   preset: [
     presetTw({
       darkMode: "class",
@@ -67,11 +66,11 @@ const base: MapcssConfig = {
   postcssPlugin: [autoprefixer()],
 };
 
-const config: MapcssConfig = {
+const config: GenerateConfig = {
   ...base,
   css: deepMerge(preflightCSS, {
     ".dark": {
-      ...chain(generate("bg-dark-900 text-slate-50", base).ast).map(
+      ...chain(generate(["bg-dark-900", "text-slate-50"], base).ast).map(
         filterDeclaration,
       ).map(
         toObject,
