@@ -4,6 +4,10 @@
 
 - [Aleph.js](https://alephjs.org/)
 
+## Env
+
+- `MEASUREMENT_ID` - Google Analytics measurement ID
+
 ## Polyfill
 
 - [`CSSStyleSheet`](https://github.com/calebdwilliams/construct-style-sheets) at

@@ -1,4 +1,5 @@
 import mapcssPlugin from "./plugins/mapcss.ts";
+import googleAnalyticsPlugin from "~/plugins/google_analitics.ts";
 import {
   filterDeclaration,
   generate,
@@ -109,6 +110,7 @@ export default <Config> {
       ...config,
       ext: ["tsx", "mdx"],
     }),
+    googleAnalyticsPlugin(Deno.env.get("MEASUREMENT_ID")),
     mdx({
       remarkPlugins: [
         remarkFrontmatter,
