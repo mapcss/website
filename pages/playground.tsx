@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
   OnMount,
-} from "https://esm.sh/@monaco-editor/react@4.3.1?deps=react@17.0.2&pin=v71";
+} from "https://esm.sh/@monaco-editor/react@4.3.1";
 import root from "https://esm.sh/react-shadow";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
-import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?deps=react@17.0.2&pin=v71";
+import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?deps=react@17.0.2&pin=v72";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 import { dynamic } from "aleph/react";
@@ -72,6 +72,10 @@ export default function Playground() {
       .setDiagnosticsOptions({
         diagnosticCodesToIgnore: [2792],
       });
+
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+    });
 
     setMonacoSet([editor, monaco]);
   };
