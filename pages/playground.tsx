@@ -91,19 +91,19 @@ export default function Playground() {
     return () => fn.dispose();
   }, [monacoSet, rawConfig]);
 
-  const [sw, setSw] = useState<Worker>();
+  const [worker, setWorker] = useState<Worker>();
 
   useEffect(() => {
-    setSw(new Worker("./worker.js"));
+    setWorker(new Worker("./worker.js"));
   }, []);
   useEffect(() => {
-    if (!sw) return;
-    return () => sw.terminate();
-  }, [sw]);
+    if (!worker) return;
+    return () => worker.terminate();
+  }, [worker]);
 
   useEffect(() => {
-    if (!sw) return;
-    sw.onmessage = ({ data }: MessageEvent<Message>) => {
+    if (!worker) return;
+    worker.onmessage = ({ data }: MessageEvent<Message>) => {
       if (data.type === "error") {
         setProgress(false);
         setError(data.value);
@@ -123,8 +123,8 @@ export default function Playground() {
         }
       }
     };
-    sw.postMessage({ code: input, rawConfig: rawConfigDiff });
-  }, [sw, input, rawConfigDiff]);
+    worker.postMessage({ code: input, rawConfig: rawConfigDiff });
+  }, [worker, input, rawConfigDiff]);
 
   const enabledSave = useMemo<boolean>(() => rawConfigDiff !== rawConfig, [
     rawConfigDiff,
