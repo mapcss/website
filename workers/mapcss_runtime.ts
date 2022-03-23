@@ -29,7 +29,7 @@ self.addEventListener(
     >,
   ) => {
     if (!initializedSWC) {
-      const msg: ProgressMessage = { type: "progress", value: "compile" };
+      const msg: ProgressMessage = { type: "progress", value: "init" };
       const { start, end } = makeRoundTripMsg(msg);
       handleException(start);
       await initSWC("https://esm.sh/@swc/wasm-web/wasm_bg.wasm");
@@ -49,12 +49,23 @@ self.addEventListener(
       handleException(() => self.postMessage(msg));
     } else {
       try {
+        const { start, end } = makeRoundTripMsg({
+          type: "progress",
+          value: "compile",
+        });
+        start();
+        handleException(start);
         const transpileResult = handleException(() =>
           transformSync(rawConfig, transformOption)
         ) as { code: string } | undefined;
+
+        handleException(end);
         if (!transpileResult) return;
-        const _msg: Message = { type: "progress", value: "import" };
-        handleException(() => self.postMessage(_msg));
+        const { start: startMsg, end: endMsg } = makeRoundTripMsg({
+          type: "progress",
+          value: "import",
+        });
+        handleException(startMsg);
 
         const importShim = importShimCache
           ? importShimCache
@@ -67,8 +78,7 @@ self.addEventListener(
         const uri = `data:text/javascript;base64,${btoa(transpileResult.code)}`;
 
         const module = await importShim(uri);
-        const _msgImport: Message = { ..._msg, end: true };
-        handleException(() => self.postMessage(_msgImport));
+        handleException(endMsg);
 
         const config = module.default ?? {};
         configCache = {

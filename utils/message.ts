@@ -1,6 +1,6 @@
 export type ProgressMessage = {
   type: "progress";
-  value: "compile" | "import";
+  value: "init" | "compile" | "import";
   end?: true;
 };
 export type Message =

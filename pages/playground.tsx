@@ -129,17 +129,20 @@ export default function Playground() {
       status: "success";
     }
     | { status: "error" }
-    | { status: "wait"; type?: "import" | "compile" };
+    | { status: "wait"; type?: "init" | "import" | "compile" };
 
   const [result, setResult] = useState<Result>({ status: "wait" });
   const waitingMsg = useMemo(() => {
     if (result.status !== "wait") return;
     switch (result.type) {
+      case "init": {
+        return "Initializing TypeScript Compiler...";
+      }
       case "compile": {
-        return "Transforming TypeScript...";
+        return "Compiling Config...";
       }
       case "import": {
-        return "Fetching modules...";
+        return "Fetching Modules...";
       }
       default: {
         return "Processing...";
