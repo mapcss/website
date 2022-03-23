@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
   OnMount,
-} from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v72";
+} from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v69";
 import root from "https://esm.sh/react-shadow";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
@@ -10,8 +10,9 @@ import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?deps=react@17.0.2&pin=v72";
 import { CODE, RAW_CONFIG } from "~/utils/code.ts";
-import type { ErrorLike, Message } from "~/utils/message.ts";
 import { dynamic } from "aleph/react";
+
+import type { ErrorLike, Message } from "~/utils/message.ts";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
 
@@ -48,7 +49,6 @@ export default function Playground() {
   const [rawConfig, setRawConfig] = useState<string>(
     RAW_CONFIG,
   );
-  const [progress, setProgress] = useState<boolean>(false);
   const [rawConfigDiff, setRawConfigDiff] = useState<string>(RAW_CONFIG);
   const [selectedIndex, setSelectedIndex] = useState<number>();
 
@@ -72,7 +72,14 @@ export default function Playground() {
       .setDiagnosticsOptions({
         diagnosticCodesToIgnore: [2792, 2821],
       });
-
+    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      `export type Config = {
+        separator: sting,
+        variablePrefix: string,
+        minify: boolean,
+      }`,
+      "inmemory://model/config.ts",
+    );
     setMonacoSet([editor, monaco]);
   };
 
@@ -105,37 +112,71 @@ export default function Playground() {
     if (!worker) return;
     worker.onmessage = ({ data }: MessageEvent<Message>) => {
       if (data.type === "error") {
-        setProgress(false);
+        setResult({ status: "error" });
         setError(data.value);
       } else if (data.type === "content") {
-        if (error) {
-          setError(undefined);
-          setProgress(false);
-        }
+        setResult({ status: "success" });
         setCSSSheet(data.value);
       } else {
-        if (data.value === "import") {
-          if (data.end) {
-            setProgress(false);
-          } else {
-            setProgress(true);
-          }
-        }
+        setResult({ status: "wait", type: data.value });
       }
     };
-    worker.postMessage({ code: input, rawConfig: rawConfigDiff });
+    worker.postMessage({ code: input, rawConfig });
   }, [worker, input, rawConfigDiff]);
+
+  type Result =
+    | {
+      status: "success";
+    }
+    | { status: "error" }
+    | { status: "wait"; type?: "init" | "import" | "compile" };
+
+  const [result, setResult] = useState<Result>({ status: "wait" });
+  const waitingMsg = useMemo(() => {
+    if (result.status !== "wait") return;
+    switch (result.type) {
+      case "init": {
+        return "Initializing TypeScript Compiler...";
+      }
+      case "compile": {
+        return "Compiling Config...";
+      }
+      case "import": {
+        return "Fetching Modules...";
+      }
+      default: {
+        return "Processing...";
+      }
+    }
+  }, [result]);
+
+  const classNameMsg = useMemo(() => {
+    if (result.status !== "wait") return;
+    switch (result.type) {
+      case "compile": {
+        return "text-blue-500";
+      }
+      case "import": {
+        return "text-amber-500";
+      }
+      default: {
+        return "text-teal-500";
+      }
+    }
+  }, [result]);
 
   const enabledSave = useMemo<boolean>(() => rawConfigDiff !== rawConfig, [
     rawConfigDiff,
     rawConfig,
   ]);
 
+  const isPreviewActive = useMemo(() => selectedIndex === 3, [selectedIndex]);
+
   useResize((ev) => {
-    if (selectedIndex === 3 && (ev.currentTarget as Window).innerWidth > 1024) {
+    if ((ev.currentTarget as Window).innerWidth > 1024) {
       setSelectedIndex(0);
     }
-  }, { deps: [], enabled: selectedIndex === 3 });
+  }, { deps: [], enabled: isPreviewActive });
 
   return (
     <div className="h-screen flex flex-col">
@@ -230,9 +271,17 @@ export default function Playground() {
                 />
               </Tab.Panel>
               <Tab.Panel className="h-full">
-                {error
-                  ? <Err file="config" className="h-full" e={error} />
-                  : cssStyle && input && (
+                {result.status === "wait"
+                  ? (
+                    <div className="h-full grid place-items-center">
+                      <div className="flex flex-col items-center space-y-2 text-amber-500">
+                        <span className="i-mdi-loading animate-spin w-12 h-12" />
+                        <span className="text-xl">Fetching modules...</span>
+                      </div>
+                    </div>
+                  )
+                  : result.status === "success"
+                  ? cssStyle && input && (
                     <root.div
                       className="h-full"
                       mode="closed"
@@ -241,28 +290,34 @@ export default function Playground() {
                       <div
                         className={clsx("h-full", darkClass)}
                         dangerouslySetInnerHTML={{ __html: input }}
-                      >
-                      </div>
+                      />
                     </root.div>
-                  )}
+                  )
+                  : result.status === "error"
+                  ? error && <Err file="config" className="h-full" e={error} />
+                  : <></>}
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
         </div>
 
         <div className="h-full hidden lg:block">
-          {progress
+          {result.status === "wait"
             ? (
               <div className="h-full grid place-items-center">
-                <div className="flex flex-col items-center space-y-2 text-amber-500">
+                <div
+                  className={clsx(
+                    "flex flex-col items-center space-y-2",
+                    classNameMsg,
+                  )}
+                >
                   <span className="i-mdi-loading animate-spin w-12 h-12" />
-                  <span className="text-xl">Fetching modules...</span>
+                  <span className="text-xl">{waitingMsg}</span>
                 </div>
               </div>
             )
-            : error
-            ? <Err file="config" className="h-full" e={error} />
-            : cssStyle && input && (
+            : result.status === "success"
+            ? cssStyle && input && (
               <root.div
                 className="h-full"
                 mode="closed"
@@ -273,7 +328,10 @@ export default function Playground() {
                   dangerouslySetInnerHTML={{ __html: input }}
                 />
               </root.div>
-            )}
+            )
+            : result.status === "error"
+            ? error && <Err file="config" className="h-full" e={error} />
+            : <></>}
         </div>
       </main>
     </div>

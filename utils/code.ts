@@ -53,6 +53,7 @@ export const RAW_CONFIG = `/**
  * \`\`\`
  */
 import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
+import type { Config } from "config"
 
 /** Depending on the Browser, you can try the following features:
  * - Chrome 80+
@@ -65,7 +66,7 @@ import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
 // };
 // import autoprefixer from "https://esm.sh/autoprefixer"
 
-export default {
+export default <Config> {
   separator: "-",
   variablePrefix: "map-",
   preset: [

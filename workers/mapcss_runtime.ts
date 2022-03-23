@@ -1,6 +1,10 @@
 import "~/utils/has_own_polyfill.ts";
 import { extractSimple, generate } from "@mapcss/core/mod.ts";
-import type { ErrorLike, Message } from "~/utils/message.ts";
+import initSWC, { transformSync } from "https://esm.sh/@swc/wasm-web@1.2.160";
+import { isString } from "~/deps.ts";
+
+import { transformOption } from "~/utils/swcrc.ts";
+import type { ErrorLike, Message, ProgressMessage } from "~/utils/message.ts";
 
 declare global {
   interface Window {
@@ -11,8 +15,11 @@ declare global {
   }
 }
 
-let configCache: [string, object] | undefined;
+let configCache:
+  | { ts: string; js: string; uri: string; mod: object }
+  | undefined;
 let importShimCache: ((url: string) => Promise<any>) | undefined;
+let initializedSWC: boolean = false;
 
 self.addEventListener(
   "message",
@@ -21,21 +28,44 @@ self.addEventListener(
       { code: string; rawConfig: string }
     >,
   ) => {
-    const tokens = extractSimple(code);
-    const uri = `data:text/javascript;base64,${btoa(rawConfig)}`;
+    if (!initializedSWC) {
+      const msg: ProgressMessage = { type: "progress", value: "init" };
+      const { start, end } = makeRoundTripMsg(msg);
+      handleException(start);
+      await initSWC("https://esm.sh/@swc/wasm-web/wasm_bg.wasm");
+      handleException(end);
+      initializedSWC = true;
+    }
 
-    if (configCache?.[0] === uri) {
-      const module = configCache[1];
+    const tokens = extractSimple(code);
+
+    if (configCache?.ts === rawConfig) {
+      const module = configCache.mod;
       const { css } = generate(
         tokens,
-        module ?? {},
+        module,
       );
       const msg: Message = { type: "content", value: css };
       handleException(() => self.postMessage(msg));
     } else {
       try {
-        const _msg: Message = { type: "progress", value: "import" };
-        handleException(() => self.postMessage(_msg));
+        const { start, end } = makeRoundTripMsg({
+          type: "progress",
+          value: "compile",
+        });
+        start();
+        handleException(start);
+        const transpileResult = handleException(() =>
+          transformSync(rawConfig, transformOption)
+        ) as { code: string } | undefined;
+
+        handleException(end);
+        if (!transpileResult) return;
+        const { start: startMsg, end: endMsg } = makeRoundTripMsg({
+          type: "progress",
+          value: "import",
+        });
+        handleException(startMsg);
 
         const importShim = importShimCache
           ? importShimCache
@@ -45,13 +75,18 @@ self.addEventListener(
             importShimCache = importShim;
             return importShim;
           })();
+        const uri = `data:text/javascript;base64,${btoa(transpileResult.code)}`;
 
         const module = await importShim(uri);
-        const _msgImport: Message = { ..._msg, end: true };
-        handleException(() => self.postMessage(_msgImport));
+        handleException(endMsg);
 
         const config = module.default ?? {};
-        configCache = [uri, config];
+        configCache = {
+          ts: rawConfig,
+          js: transpileResult.code,
+          uri,
+          mod: config,
+        };
         const { css } = generate(
           tokens,
           config,
@@ -78,12 +113,24 @@ function toErrorLike({ name, message, stack }: Error): ErrorLike {
   };
 }
 
-function handleException(fn: () => any): void {
+function handleException(fn: () => any): unknown {
   try {
-    fn();
+    return fn();
   } catch (e) {
     if (e instanceof Error) {
       const msg: Message = { type: "error", value: toErrorLike(e) };
+      self.postMessage(msg);
+    } else if (isString(e)) {
+      const msg: Message = {
+        type: "error",
+        value: { message: e, name: "compile error", stack: e },
+      };
+      self.postMessage(msg);
+    } else {
+      const msg: Message = {
+        type: "error",
+        value: toErrorLike(Error("unknown error")),
+      };
       self.postMessage(msg);
     }
   }
@@ -110,4 +157,14 @@ function getImportShim(
     self.importScripts("https://unpkg.com/shimport@2.0.5/index.js");
     return self.__shimport__.load;
   }
+}
+
+function makeRoundTripMsg(
+  startMsg: ProgressMessage,
+): { start: () => void; end: () => void } {
+  const endMsg: ProgressMessage = { ...startMsg, end: true };
+  return {
+    start: () => self.postMessage(startMsg),
+    end: () => self.postMessage(endMsg),
+  };
 }
