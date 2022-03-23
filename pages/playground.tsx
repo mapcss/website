@@ -3,7 +3,6 @@ import Editor, {
   EditorProps,
   OnMount,
 } from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v69";
-import root from "https://esm.sh/react-shadow";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
@@ -11,6 +10,7 @@ import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?deps=react@17.0.2&pin=v72";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
+import ShadowRoot from "~/components/shadow_root.tsx";
 
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
@@ -285,16 +285,20 @@ export default function Playground() {
                   )
                   : result.status === "success"
                   ? cssStyle && input && (
-                    <root.div
-                      className="h-full"
+                    <ShadowRoot
                       mode="closed"
-                      styleSheets={[cssStyle]}
+                      className="h-full"
+                      onRender={(root) => {
+                        if (cssStyle) {
+                          root.adoptedStyleSheets = [cssStyle];
+                        }
+                      }}
                     >
                       <div
                         className={clsx("h-full", darkClass)}
                         dangerouslySetInnerHTML={{ __html: input }}
                       />
-                    </root.div>
+                    </ShadowRoot>
                   )
                   : result.status === "error"
                   ? error && <Err file="config" className="h-full" e={error} />
@@ -321,16 +325,20 @@ export default function Playground() {
             )
             : result.status === "success"
             ? cssStyle && input && (
-              <root.div
-                className="h-full"
+              <ShadowRoot
                 mode="closed"
-                styleSheets={[cssStyle]}
+                className="h-full"
+                onRender={(root) => {
+                  if (cssStyle) {
+                    root.adoptedStyleSheets = [cssStyle];
+                  }
+                }}
               >
                 <div
                   className={clsx("h-full", darkClass)}
                   dangerouslySetInnerHTML={{ __html: input }}
                 />
-              </root.div>
+              </ShadowRoot>
             )
             : result.status === "error"
             ? error && <Err file="config" className="h-full" e={error} />
