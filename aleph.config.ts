@@ -102,9 +102,6 @@ const config: GenerateConfig = {
 };
 
 export default <Config> {
-  ssr: {
-    exclude: [/\/playground/],
-  },
   plugins: [
     mapcssPlugin({
       ...config,
