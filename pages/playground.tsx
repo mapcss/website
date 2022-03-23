@@ -104,7 +104,7 @@ export default function Playground() {
   const [worker, setWorker] = useState<Worker>();
 
   useEffect(() => {
-    setWorker(new Worker("./worker.js"));
+    setWorker(new Worker("/worker.js"));
   }, []);
   useEffect(() => {
     if (!worker) return;
