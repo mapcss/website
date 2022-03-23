@@ -66,7 +66,7 @@ const useIsFirstMountRef: UseRef<UseIsFirstMountRefReturn> = () => {
  *
  * @see https://react-hookable.vercel.app/?path=/story/enhancement-useupdateeffect
  */
-export const useUpdateEffect: typeof useEffect = (effect, deps) => {
+const useUpdateEffect: typeof useEffect = (effect, deps) => {
   const { isFirstMount } = useIsFirstMountRef();
 
   useEffect(() => {
@@ -75,3 +75,4 @@ export const useUpdateEffect: typeof useEffect = (effect, deps) => {
     return effect();
   }, deps);
 };
+export default useUpdateEffect;
