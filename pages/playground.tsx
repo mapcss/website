@@ -9,7 +9,7 @@ import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?deps=react@17.0.2&pin=v72";
-import { CODE, RAW_CONFIG } from "~/utils/code.ts";
+import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 
 import type { ErrorLike, Message } from "~/utils/message.ts";
@@ -72,12 +72,15 @@ export default function Playground() {
       .setDiagnosticsOptions({
         diagnosticCodesToIgnore: [2792, 2821],
       });
+
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      ...monaco.languages.typescript.typescriptDefaults
+        .getCompilerOptions(),
+      strict: true,
+      noImplicitAny: true,
+    });
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      `export type Config = {
-        separator: sting,
-        variablePrefix: string,
-        minify: boolean,
-      }`,
+      TYPES,
       "inmemory://model/config.ts",
     );
     setMonacoSet([editor, monaco]);
