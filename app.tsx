@@ -13,6 +13,7 @@ export default function App(
     <>
       <head>
         <meta name="viewport" content="width=device-width" />
+        <meta charSet="utf-8" />
       </head>
 
       <DarkModeContext.Provider value={[isDark, setDark]}>

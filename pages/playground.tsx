@@ -15,6 +15,9 @@ import type { ErrorLike, Message } from "~/utils/message.ts";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
 
+const DESCRIPTION =
+  `An online playground for MapCSS lets you use all of MapCSS's features directly in the browser.`;
+const TITLE = `MapCSS Playground`;
 const Err = dynamic(() => import("~/components/err.tsx"));
 
 export const editorOptions: EditorProps["options"] = {
@@ -190,182 +193,202 @@ export default function Playground() {
   }, { deps: [], enabled: select === 3 });
 
   return (
-    <div className="h-screen flex flex-col">
-      <Header className="flex-none" />
-      <main className="lg:grid flex-1 grid-cols-2">
-        <div className="h-full flex flex-col lg:border-r border-slate-900/10">
-          <div
-            role="toolbar"
-            className="pr-2 justify-between inline-flex whitespace-pre"
-          >
+    <>
+      <head>
+        <title>{TITLE}</title>
+        <meta
+          content={DESCRIPTION}
+          name="description"
+        />
+        <meta property="og:title" content={TITLE} />
+        <meta
+          property="og:description"
+          content={DESCRIPTION}
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={TITLE} />
+        <meta name="twitter:title" content={TITLE} />
+        <meta name="twitter:description" content={DESCRIPTION} />
+        <meta name="apple-mobile-web-app-title" content={TITLE} />
+        <meta name="application-name" content={TITLE} />
+      </head>
+      <div className="h-screen flex flex-col">
+        <Header className="flex-none" />
+        <main className="lg:grid flex-1 grid-cols-2">
+          <div className="h-full flex flex-col lg:border-r border-slate-900/10">
             <div
-              role="tablist"
-              className="flex-shrink-0 overflow-x-scroll"
-              aria-orientation="horizontal"
+              role="toolbar"
+              className="pr-2 justify-between inline-flex whitespace-pre"
             >
-              {tabs.map(({ name, className, icon, ...rest }, i) => (
-                <button
-                  role="tab"
-                  type="button"
-                  aria-selected={select === i}
-                  onClick={() => setReflect(i)}
-                  key={name}
-                  {...rest}
-                  className={clsx(
-                    {
-                      "border-amber-500 italic border-b-1": select === i,
-                    },
-                    className,
-                    "pl-3 py-0.5",
-                  )}
-                >
-                  <span className={clsx(icon)} />
-                  <span className="align-middle mx-1">
-                    {name}
-                  </span>
-                  <span
+              <div
+                role="tablist"
+                className="flex-shrink-0 overflow-x-scroll"
+                aria-orientation="horizontal"
+              >
+                {tabs.map(({ name, className, icon, ...rest }, i) => (
+                  <button
+                    role="tab"
+                    type="button"
+                    aria-selected={select === i}
+                    onClick={() => setReflect(i)}
+                    key={name}
+                    {...rest}
                     className={clsx(
-                      "i-mdi-circle w-2 h-2 text-teal-500",
-                      name === "config" && enabledSave
-                        ? "visible"
-                        : "invisible",
                       {
-                        "invisible": name !== "config",
+                        "border-amber-500 italic border-b-1": select === i,
                       },
+                      className,
+                      "pl-3 py-0.5",
                     )}
-                  />
-                </button>
-              ))}
+                  >
+                    <span className={clsx(icon)} />
+                    <span className="align-middle mx-1">
+                      {name}
+                    </span>
+                    <span
+                      className={clsx(
+                        "i-mdi-circle w-2 h-2 text-teal-500",
+                        name === "config" && enabledSave
+                          ? "visible"
+                          : "invisible",
+                        {
+                          "invisible": name !== "config",
+                        },
+                      )}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              <section>
+                <button
+                  disabled={!enabledSave}
+                  onClick={save}
+                  className={clsx(
+                    "disabled:text-gray-400 i-mdi-content-save text-teal-500",
+                    {
+                      "hidden": select !== 1,
+                    },
+                  )}
+                  title="save"
+                />
+              </section>
             </div>
 
-            <section>
-              <button
-                disabled={!enabledSave}
-                onClick={save}
-                className={clsx(
-                  "disabled:text-gray-400 i-mdi-content-save text-teal-500",
-                  {
-                    "hidden": select !== 1,
-                  },
-                )}
-                title="save"
-              />
-            </section>
-          </div>
-
-          <div className="flex-1" role="tabpanel">
-            {select === 0
-              ? (() => {
-                return (
+            <div className="flex-1" role="tabpanel">
+              {select === 0
+                ? (() => {
+                  return (
+                    <Editor
+                      options={{
+                        ...editorOptions,
+                      }}
+                      loading={<></>}
+                      defaultLanguage="html"
+                      onChange={setInput}
+                      defaultValue={CODE}
+                      value={input}
+                      theme={theme}
+                    />
+                  );
+                })()
+                : select === 1
+                ? (
+                  <Editor
+                    options={editorOptions}
+                    loading={<></>}
+                    defaultLanguage="typescript"
+                    onChange={(value) => setRawConfig(value ?? "")}
+                    value={rawConfig}
+                    theme={theme}
+                    onMount={handleMount}
+                  />
+                )
+                : select === 2
+                ? (
                   <Editor
                     options={{
                       ...editorOptions,
+                      readOnly: true,
                     }}
                     loading={<></>}
-                    defaultLanguage="html"
-                    onChange={setInput}
-                    defaultValue={CODE}
-                    value={input}
+                    defaultLanguage="css"
+                    value={cssSheet}
                     theme={theme}
                   />
-                );
-              })()
-              : select === 1
-              ? (
-                <Editor
-                  options={editorOptions}
-                  loading={<></>}
-                  defaultLanguage="typescript"
-                  onChange={(value) => setRawConfig(value ?? "")}
-                  value={rawConfig}
-                  theme={theme}
-                  onMount={handleMount}
-                />
-              )
-              : select === 2
-              ? (
-                <Editor
-                  options={{
-                    ...editorOptions,
-                    readOnly: true,
-                  }}
-                  loading={<></>}
-                  defaultLanguage="css"
-                  value={cssSheet}
-                  theme={theme}
-                />
-              )
-              : select === 3
-              ? result.status === "wait"
-                ? (
-                  <div className="h-full grid place-items-center">
-                    <div className="flex flex-col items-center space-y-2 text-amber-500">
-                      <span className="i-mdi-loading animate-spin w-12 h-12" />
-                      <span className="text-xl">Fetching modules...</span>
+                )
+                : select === 3
+                ? result.status === "wait"
+                  ? (
+                    <div className="h-full grid place-items-center">
+                      <div className="flex flex-col items-center space-y-2 text-amber-500">
+                        <span className="i-mdi-loading animate-spin w-12 h-12" />
+                        <span className="text-xl">Fetching modules...</span>
+                      </div>
                     </div>
-                  </div>
-                )
-                : result.status === "success"
-                ? cssStyle && input && (
-                  <ShadowRoot
-                    mode="closed"
-                    className="h-full"
-                    onRender={(root) => {
-                      if (cssStyle) {
-                        (root as any).adoptedStyleSheets = [cssStyle];
-                      }
-                    }}
+                  )
+                  : result.status === "success"
+                  ? cssStyle && input && (
+                    <ShadowRoot
+                      mode="closed"
+                      className="h-full"
+                      onRender={(root) => {
+                        if (cssStyle) {
+                          (root as any).adoptedStyleSheets = [cssStyle];
+                        }
+                      }}
+                    >
+                      <div
+                        className={clsx("h-full", darkClass)}
+                        dangerouslySetInnerHTML={{ __html: input }}
+                      />
+                    </ShadowRoot>
+                  )
+                  : result.status === "error"
+                  ? error && <Err file="config" className="h-full" e={error} />
+                  : <></>
+                : <></>}
+            </div>
+          </div>
+
+          <div className="h-full hidden lg:block">
+            {result.status === "wait"
+              ? (
+                <div className="h-full grid place-items-center">
+                  <div
+                    className={clsx(
+                      "flex flex-col items-center space-y-2",
+                      classNameMsg,
+                    )}
                   >
-                    <div
-                      className={clsx("h-full", darkClass)}
-                      dangerouslySetInnerHTML={{ __html: input }}
-                    />
-                  </ShadowRoot>
-                )
-                : result.status === "error"
-                ? error && <Err file="config" className="h-full" e={error} />
-                : <></>
+                    <span className="i-mdi-loading animate-spin w-12 h-12" />
+                    <span className="text-xl">{waitingMsg}</span>
+                  </div>
+                </div>
+              )
+              : result.status === "success"
+              ? cssStyle && input && (
+                <ShadowRoot
+                  mode="closed"
+                  className="h-full"
+                  onRender={(root) => {
+                    if (cssStyle) {
+                      (root as any).adoptedStyleSheets = [cssStyle];
+                    }
+                  }}
+                >
+                  <div
+                    className={clsx("h-full", darkClass)}
+                    dangerouslySetInnerHTML={{ __html: input }}
+                  />
+                </ShadowRoot>
+              )
+              : result.status === "error"
+              ? error && <Err file="config" className="h-full" e={error} />
               : <></>}
           </div>
-        </div>
-
-        <div className="h-full hidden lg:block">
-          {result.status === "wait"
-            ? (
-              <div className="h-full grid place-items-center">
-                <div
-                  className={clsx(
-                    "flex flex-col items-center space-y-2",
-                    classNameMsg,
-                  )}
-                >
-                  <span className="i-mdi-loading animate-spin w-12 h-12" />
-                  <span className="text-xl">{waitingMsg}</span>
-                </div>
-              </div>
-            )
-            : result.status === "success"
-            ? cssStyle && input && (
-              <ShadowRoot
-                mode="closed"
-                className="h-full"
-                onRender={(root) => {
-                  if (cssStyle) {
-                    (root as any).adoptedStyleSheets = [cssStyle];
-                  }
-                }}
-              >
-                <div
-                  className={clsx("h-full", darkClass)}
-                  dangerouslySetInnerHTML={{ __html: input }}
-                />
-              </ShadowRoot>
-            )
-            : result.status === "error"
-            ? error && <Err file="config" className="h-full" e={error} />
-            : <></>}
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
