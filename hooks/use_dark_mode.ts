@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { useUpdateEffect } from "~/hooks/utils.ts";
+import useUpdateEffect from "~/hooks/use_update_effect.ts";
 
 const useDarkMode = (
   initialState = false,

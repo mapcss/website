@@ -3,15 +3,14 @@ import Editor, {
   EditorProps,
   OnMount,
 } from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v69";
-import root from "https://esm.sh/react-shadow";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
-import { Tab } from "https://esm.sh/@headlessui/react@1.5.0?deps=react@17.0.2&pin=v72";
-import { CODE, RAW_CONFIG } from "~/utils/code.ts";
+import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
-
+import ShadowRoot from "~/components/shadow_root.tsx";
+import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
@@ -50,7 +49,6 @@ export default function Playground() {
     RAW_CONFIG,
   );
   const [rawConfigDiff, setRawConfigDiff] = useState<string>(RAW_CONFIG);
-  const [selectedIndex, setSelectedIndex] = useState<number>();
 
   const [monacoSet, setMonacoSet] = useState<Parameters<OnMount>>();
   const [error, setError] = useState<ErrorLike>();
@@ -72,12 +70,15 @@ export default function Playground() {
       .setDiagnosticsOptions({
         diagnosticCodesToIgnore: [2792, 2821],
       });
+
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      ...monaco.languages.typescript.typescriptDefaults
+        .getCompilerOptions(),
+      strict: true,
+      noImplicitAny: true,
+    });
     monaco.languages.typescript.typescriptDefaults.addExtraLib(
-      `export type Config = {
-        separator: sting,
-        variablePrefix: string,
-        minify: boolean,
-      }`,
+      TYPES,
       "inmemory://model/config.ts",
     );
     setMonacoSet([editor, monaco]);
@@ -101,7 +102,7 @@ export default function Playground() {
   const [worker, setWorker] = useState<Worker>();
 
   useEffect(() => {
-    setWorker(new Worker("./worker.js"));
+    setWorker(new Worker("/worker.js"));
   }, []);
   useEffect(() => {
     if (!worker) return;
@@ -153,6 +154,7 @@ export default function Playground() {
   const classNameMsg = useMemo(() => {
     if (result.status !== "wait") return;
     switch (result.type) {
+      case "init":
       case "compile": {
         return "text-blue-500";
       }
@@ -170,84 +172,106 @@ export default function Playground() {
     rawConfig,
   ]);
 
-  const isPreviewActive = useMemo(() => selectedIndex === 3, [selectedIndex]);
+  const [select, setSelect] = useState(0);
+  const [reflect, setReflect] = useState(0);
+
+  useUpdateEffect(() => {
+    // work around for remove monaco editor from DOM
+    const select = reflect;
+    setSelect(NaN);
+    const id = requestAnimationFrame(() => setSelect(select));
+    return () => cancelAnimationFrame(id);
+  }, [reflect]);
 
   useResize((ev) => {
     if ((ev.currentTarget as Window).innerWidth > 1024) {
-      setSelectedIndex(0);
+      setReflect(0);
     }
-  }, { deps: [], enabled: isPreviewActive });
+  }, { deps: [], enabled: select === 3 });
 
   return (
     <div className="h-screen flex flex-col">
       <Header className="flex-none" />
       <main className="lg:grid flex-1 grid-cols-2">
         <div className="h-full flex flex-col lg:border-r border-slate-900/10">
-          <Tab.Group selectedIndex={selectedIndex} onChange={setSelectedIndex}>
-            <div className="px-4 lg:pl-8 inline-flex justify-between whitespace-pre overflow-x-scroll">
-              <Tab.List className="space-x-2">
-                {tabs.map(({ name, className, icon, ...rest }) => (
-                  <Tab
-                    key={name}
-                    {...rest}
-                    className={({ selected }) =>
-                      clsx(
-                        {
-                          "border-amber-500 italic border-b-1": selected,
-                        },
-                        className,
-                        "pl-2 py-0.5",
-                      )}
-                  >
-                    <span className={clsx(icon)} />
-                    <span className="align-middle mx-1">
-                      {name}
-                    </span>
-                    <span
-                      className={clsx(
-                        "i-mdi-circle w-2 h-2 text-teal-500",
-                        name === "config" && enabledSave
-                          ? "visible"
-                          : "invisible",
-                        {
-                          "invisible": name !== "config",
-                        },
-                      )}
-                    />
-                  </Tab>
-                ))}
-              </Tab.List>
-
-              <section>
+          <div
+            role="toolbar"
+            className="pr-2 justify-between inline-flex whitespace-pre"
+          >
+            <div
+              role="tablist"
+              className="flex-shrink-0 overflow-x-scroll"
+              aria-orientation="horizontal"
+            >
+              {tabs.map(({ name, className, icon, ...rest }, i) => (
                 <button
-                  disabled={!enabledSave}
-                  onClick={save}
+                  role="tab"
+                  type="button"
+                  aria-selected={select === i}
+                  onClick={() => setReflect(i)}
+                  key={name}
+                  {...rest}
                   className={clsx(
-                    "disabled:text-gray-400 i-mdi-content-save text-teal-500",
                     {
-                      "hidden": selectedIndex !== 1,
+                      "border-amber-500 italic border-b-1": select === i,
                     },
+                    className,
+                    "pl-3 py-0.5",
                   )}
-                  title="save"
-                />
-              </section>
+                >
+                  <span className={clsx(icon)} />
+                  <span className="align-middle mx-1">
+                    {name}
+                  </span>
+                  <span
+                    className={clsx(
+                      "i-mdi-circle w-2 h-2 text-teal-500",
+                      name === "config" && enabledSave
+                        ? "visible"
+                        : "invisible",
+                      {
+                        "invisible": name !== "config",
+                      },
+                    )}
+                  />
+                </button>
+              ))}
             </div>
 
-            <Tab.Panels className="flex-1">
-              <Tab.Panel className="h-full">
-                <Editor
-                  options={{
-                    ...editorOptions,
-                  }}
-                  loading={<></>}
-                  defaultLanguage="html"
-                  onChange={setInput}
-                  defaultValue={CODE}
-                  value={input}
-                  theme={theme}
-                />
-              </Tab.Panel>
-              <Tab.Panel className="h-full">
+            <section>
+              <button
+                disabled={!enabledSave}
+                onClick={save}
+                className={clsx(
+                  "disabled:text-gray-400 i-mdi-content-save text-teal-500",
+                  {
+                    "hidden": select !== 1,
+                  },
+                )}
+                title="save"
+              />
+            </section>
+          </div>
+
+          <div className="flex-1" role="tabpanel">
+            {select === 0
+              ? (() => {
+                return (
+                  <Editor
+                    options={{
+                      ...editorOptions,
+                    }}
+                    loading={<></>}
+                    defaultLanguage="html"
+                    onChange={setInput}
+                    defaultValue={CODE}
+                    value={input}
+                    theme={theme}
+                  />
+                );
+              })()
+              : select === 1
+              ? (
                 <Editor
                   options={editorOptions}
                   loading={<></>}
@@ -257,8 +281,9 @@ export default function Playground() {
                   theme={theme}
                   onMount={handleMount}
                 />
-              </Tab.Panel>
-              <Tab.Panel className="h-full">
+              )
+              : select === 2
+              ? (
                 <Editor
                   options={{
                     ...editorOptions,
@@ -269,36 +294,39 @@ export default function Playground() {
                   value={cssSheet}
                   theme={theme}
                 />
-              </Tab.Panel>
-              <Tab.Panel className="h-full">
-                {result.status === "wait"
-                  ? (
-                    <div className="h-full grid place-items-center">
-                      <div className="flex flex-col items-center space-y-2 text-amber-500">
-                        <span className="i-mdi-loading animate-spin w-12 h-12" />
-                        <span className="text-xl">Fetching modules...</span>
-                      </div>
+              )
+              : select === 3
+              ? result.status === "wait"
+                ? (
+                  <div className="h-full grid place-items-center">
+                    <div className="flex flex-col items-center space-y-2 text-amber-500">
+                      <span className="i-mdi-loading animate-spin w-12 h-12" />
+                      <span className="text-xl">Fetching modules...</span>
                     </div>
-                  )
-                  : result.status === "success"
-                  ? cssStyle && input && (
-                    <root.div
-                      className="h-full"
-                      mode="closed"
-                      styleSheets={[cssStyle]}
-                    >
-                      <div
-                        className={clsx("h-full", darkClass)}
-                        dangerouslySetInnerHTML={{ __html: input }}
-                      />
-                    </root.div>
-                  )
-                  : result.status === "error"
-                  ? error && <Err file="config" className="h-full" e={error} />
-                  : <></>}
-              </Tab.Panel>
-            </Tab.Panels>
-          </Tab.Group>
+                  </div>
+                )
+                : result.status === "success"
+                ? cssStyle && input && (
+                  <ShadowRoot
+                    mode="closed"
+                    className="h-full"
+                    onRender={(root) => {
+                      if (cssStyle) {
+                        (root as any).adoptedStyleSheets = [cssStyle];
+                      }
+                    }}
+                  >
+                    <div
+                      className={clsx("h-full", darkClass)}
+                      dangerouslySetInnerHTML={{ __html: input }}
+                    />
+                  </ShadowRoot>
+                )
+                : result.status === "error"
+                ? error && <Err file="config" className="h-full" e={error} />
+                : <></>
+              : <></>}
+          </div>
         </div>
 
         <div className="h-full hidden lg:block">
@@ -318,16 +346,20 @@ export default function Playground() {
             )
             : result.status === "success"
             ? cssStyle && input && (
-              <root.div
-                className="h-full"
+              <ShadowRoot
                 mode="closed"
-                styleSheets={[cssStyle]}
+                className="h-full"
+                onRender={(root) => {
+                  if (cssStyle) {
+                    (root as any).adoptedStyleSheets = [cssStyle];
+                  }
+                }}
               >
                 <div
                   className={clsx("h-full", darkClass)}
                   dangerouslySetInnerHTML={{ __html: input }}
                 />
-              </root.div>
+              </ShadowRoot>
             )
             : result.status === "error"
             ? error && <Err file="config" className="h-full" e={error} />
