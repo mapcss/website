@@ -178,7 +178,8 @@ export default function Playground() {
     // work around for remove monaco editor from DOM
     const select = reflect;
     setSelect(NaN);
-    requestAnimationFrame(() => setSelect(select));
+    const id = requestAnimationFrame(() => setSelect(select));
+    return () => cancelAnimationFrame(id);
   }, [reflect]);
 
   useResize((ev) => {
@@ -196,9 +197,12 @@ export default function Playground() {
             role="toolbar"
             className="px-4 lg:pl-8 inline-flex justify-between whitespace-pre overflow-x-scroll"
           >
-            <div>
+            <div role="tablist" aria-orientation="horizontal">
               {tabs.map(({ name, className, icon, ...rest }, i) => (
                 <button
+                  role="tab"
+                  type="button"
+                  aria-selected={select === i}
                   onClick={() => setReflect(i)}
                   key={name}
                   {...rest}
@@ -244,53 +248,47 @@ export default function Playground() {
             </section>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1" role="tabpanel">
             {select === 0
               ? (() => {
                 return (
-                  <div className="h-full">
-                    <Editor
-                      options={{
-                        ...editorOptions,
-                      }}
-                      loading={<></>}
-                      defaultLanguage="html"
-                      onChange={setInput}
-                      defaultValue={CODE}
-                      value={input}
-                      theme={theme}
-                    />
-                  </div>
+                  <Editor
+                    options={{
+                      ...editorOptions,
+                    }}
+                    loading={<></>}
+                    defaultLanguage="html"
+                    onChange={setInput}
+                    defaultValue={CODE}
+                    value={input}
+                    theme={theme}
+                  />
                 );
               })()
               : select === 1
               ? (
-                <div className="h-full g">
-                  <Editor
-                    options={editorOptions}
-                    loading={<></>}
-                    defaultLanguage="typescript"
-                    onChange={(value) => setRawConfig(value ?? "")}
-                    value={rawConfig}
-                    theme={theme}
-                    onMount={handleMount}
-                  />
-                </div>
+                <Editor
+                  options={editorOptions}
+                  loading={<></>}
+                  defaultLanguage="typescript"
+                  onChange={(value) => setRawConfig(value ?? "")}
+                  value={rawConfig}
+                  theme={theme}
+                  onMount={handleMount}
+                />
               )
               : select === 2
               ? (
-                <div className="h-full">
-                  <Editor
-                    options={{
-                      ...editorOptions,
-                      readOnly: true,
-                    }}
-                    loading={<></>}
-                    defaultLanguage="css"
-                    value={cssSheet}
-                    theme={theme}
-                  />
-                </div>
+                <Editor
+                  options={{
+                    ...editorOptions,
+                    readOnly: true,
+                  }}
+                  loading={<></>}
+                  defaultLanguage="css"
+                  value={cssSheet}
+                  theme={theme}
+                />
               )
               : select === 3
               ? result.status === "wait"
