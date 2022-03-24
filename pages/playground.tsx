@@ -154,6 +154,7 @@ export default function Playground() {
   const classNameMsg = useMemo(() => {
     if (result.status !== "wait") return;
     switch (result.type) {
+      case "init":
       case "compile": {
         return "text-blue-500";
       }
