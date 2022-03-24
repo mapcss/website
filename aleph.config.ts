@@ -28,6 +28,7 @@ import vscodeIcons from "https://esm.sh/@iconify-json/vscode-icons/icons.json" a
 };
 import autoprefixer from "https://deno.land/x/postcss_autoprefixer@0.1.1/mod.js";
 import { toObject } from "https://deno.land/x/postcss_js@v1.0.0-beta.4/mod.ts";
+import postcss100Fix from "https://esm.sh/postcss-100vh-fix";
 import type { Config } from "aleph/types";
 
 const base: GenerateConfig = {
@@ -64,7 +65,7 @@ const base: GenerateConfig = {
       },
     }),
   ],
-  postcssPlugin: [autoprefixer()],
+  postcssPlugin: [autoprefixer, postcss100Fix],
 };
 
 const config: GenerateConfig = {
