@@ -65,7 +65,7 @@ const base: GenerateConfig = {
       },
     }),
   ],
-  postcssPlugin: [autoprefixer],
+  postcssPlugin: [autoprefixer()],
 };
 
 const config: GenerateConfig = {
