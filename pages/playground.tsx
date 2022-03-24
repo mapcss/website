@@ -196,7 +196,7 @@ export default function Playground() {
         <div className="h-full flex flex-col lg:border-r border-slate-900/10">
           <div
             role="toolbar"
-            className="px-4 lg:pl-8 justify-between inline-flex whitespace-pre"
+            className="pr-2 justify-between inline-flex whitespace-pre"
           >
             <div
               role="tablist"
