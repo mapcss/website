@@ -196,9 +196,13 @@ export default function Playground() {
         <div className="h-full flex flex-col lg:border-r border-slate-900/10">
           <div
             role="toolbar"
-            className="px-4 lg:pl-8 inline-flex justify-between whitespace-pre overflow-x-scroll"
+            className="px-4 lg:pl-8 justify-between inline-flex whitespace-pre"
           >
-            <div role="tablist" aria-orientation="horizontal">
+            <div
+              role="tablist"
+              className="flex-shrink-0 overflow-x-scroll"
+              aria-orientation="horizontal"
+            >
               {tabs.map(({ name, className, icon, ...rest }, i) => (
                 <button
                   role="tab"
