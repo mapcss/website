@@ -1,16 +1,16 @@
 export const CODE =
   `<div class="h-full overflow-hidden grid place-items-center">
-  <div class="p-6 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg sm:px-10">
+  <div class="p-6 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg">
     <div class="max-w-md mx-auto">
       <div class="divide-y divide-gray-300/50">
-        <div class="py-4 sm:py-8 text-base leading-7 space-y-6">
-          <p>An advanced online playground for MapCSS, including support for things like:</p>
+        <div class="py-8 text-base leading-7 space-y-6">
+          <p>An online playground for MapCSS, including support for things like:</p>
           <ul class="space-y-4">
             <li class="flex items-center">
             <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span></span>
           <p class="ml-4">
-            Full customizable, on-demand
-            <code class="text-sm font-bold text-gray-900 dark:text-white">mapcss.config.ts</code>
+            Full customizable, on-demand MapCSS config with
+            <code class="text-sm font-bold text-gray-900 dark:text-white">TypeScript</code>
           </p>
         </li>
         <li class="flex items-center">
@@ -25,7 +25,7 @@ export const CODE =
     <div class="pt-8 text-base leading-7 font-semibold">
       <p class="text-gray-900 dark:text-white">Want to dig deeper into MapCSS?</p>
       <p>
-        <a href="/docs/installation" class="text-amber-500 hover:text-amber-600">Read the docs &rarr;</a>
+        <a href="/docs/installation/" class="text-amber-500 hover:text-amber-600 transition-colors duration-200">Read the docs<span class="i-mdi-arrow-right-thick">&rarr;</span></a>
       </p>
     </div>
   </div>
