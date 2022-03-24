@@ -9,7 +9,6 @@ import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
-import ShadowRoot from "~/components/shadow_root.tsx";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
@@ -19,6 +18,7 @@ const DESCRIPTION =
   `An online playground for MapCSS lets you use all of MapCSS's features directly in the browser.`;
 const TITLE = `MapCSS Playground`;
 const Err = dynamic(() => import("~/components/err.tsx"));
+const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
