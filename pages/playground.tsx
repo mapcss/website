@@ -10,6 +10,7 @@ import { clsx } from "~/deps.ts";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
+import { decode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
@@ -20,11 +21,42 @@ const TITLE = `MapCSS Playground`;
 const Err = dynamic(() => import("~/components/err.tsx"));
 const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 
+function getInput(
+  { param, defaultAs }: { param: string; defaultAs: string },
+): string {
+  if (window) {
+    const url = new URL(window.location.href);
+    const _input = url.searchParams.get(param);
+    try {
+      const input = _input
+        ? new TextDecoder().decode(decode(_input))
+        : defaultAs;
+      return input;
+    } catch {
+      return CODE;
+    }
+  } else {
+    return "";
+  }
+}
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
   fontSize: 13,
   minimap: { enabled: false },
   tabSize: 2,
+};
+
+const makeShareURL = async (
+  { input, config }: { input: string; config: string },
+): Promise<URL> => {
+  const { encode } = await import(
+    "https://deno.land/std@0.131.0/encoding/base64url.ts"
+  );
+  const url = new URL(window.location.href);
+
+  url.searchParams.set("input", encode(input));
+  url.searchParams.set("config", encode(config));
+  return url;
 };
 
 const tabs:
@@ -46,12 +78,18 @@ const tabs:
   ];
 
 export default function Playground() {
-  const [input, setInput] = useState<string | undefined>(CODE);
+  const [input, setInput] = useState<string>(() =>
+    getInput({ param: "input", defaultAs: CODE })
+  );
+
+  const configSetter = () =>
+    getInput({ param: "config", defaultAs: RAW_CONFIG });
+
   const [cssSheet, setCSSSheet] = useState("");
   const [rawConfig, setRawConfig] = useState<string>(
-    RAW_CONFIG,
+    configSetter,
   );
-  const [rawConfigDiff, setRawConfigDiff] = useState<string>(RAW_CONFIG);
+  const [rawConfigDiff, setRawConfigDiff] = useState<string>(configSetter);
 
   const [monacoSet, setMonacoSet] = useState<Parameters<OnMount>>();
   const [error, setError] = useState<ErrorLike>();
@@ -260,18 +298,44 @@ export default function Playground() {
                 ))}
               </div>
 
-              <section>
+              <section className="flex items-center space-x-1">
                 <button
                   disabled={!enabledSave}
                   onClick={save}
                   className={clsx(
-                    "disabled:text-gray-400 i-mdi-content-save text-teal-500",
+                    "group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 focus:ring-1 ring-amber-500 transition duration-200 hover:bg-gray-100 dark:hover:bg-dark-300 disabled:text-gray-400",
                     {
                       "hidden": select !== 1,
                     },
                   )}
-                  title="save"
-                />
+                >
+                  <span
+                    className={clsx(
+                      { "text-teal-500 ": enabledSave },
+                      "i-mdi-content-save w-4 h-4",
+                    )}
+                  />
+                  <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
+                    Save
+                  </span>
+                </button>
+                <button
+                  onClick={async () => {
+                    const url = await makeShareURL({
+                      input,
+                      config: rawConfigDiff,
+                    });
+                    window.navigator.clipboard.writeText(
+                      url.href,
+                    );
+                  }}
+                  className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
+                >
+                  <span className="i-mdi-share-variant w-4 h-4" />
+                  <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
+                    Share URL
+                  </span>
+                </button>
               </section>
             </div>
 
@@ -285,7 +349,7 @@ export default function Playground() {
                       }}
                       loading={<></>}
                       defaultLanguage="html"
-                      onChange={setInput}
+                      onChange={(v) => setInput(v ?? "")}
                       defaultValue={CODE}
                       value={input}
                       theme={theme}
