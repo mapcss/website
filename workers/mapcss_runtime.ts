@@ -1,10 +1,16 @@
 import "~/utils/has_own_polyfill.ts";
-import { extractSimple, generate } from "@mapcss/core/mod.ts";
+import { extractSimple } from "@mapcss/core/extract.ts";
+import type { generate as g } from "@mapcss/core/generate.ts";
 import initSWC, { transformSync } from "https://esm.sh/@swc/wasm-web@1.2.160";
 import { isString } from "~/deps.ts";
 
 import { transformOption } from "~/utils/swcrc.ts";
-import type { ErrorLike, Message, ProgressMessage } from "~/utils/message.ts";
+import type {
+  Data,
+  ErrorLike,
+  Message,
+  ProgressMessage,
+} from "~/utils/message.ts";
 
 declare global {
   interface Window {
@@ -20,12 +26,13 @@ let configCache:
   | undefined;
 let importShimCache: ((url: string) => Promise<any>) | undefined;
 let initializedSWC: boolean = false;
+let generate: typeof g | undefined;
 
 self.addEventListener(
   "message",
   async (
-    { data: { code, rawConfig } }: MessageEvent<
-      { code: string; rawConfig: string }
+    { data: { input, config, version } }: MessageEvent<
+      Data
     >,
   ) => {
     if (!initializedSWC) {
@@ -36,10 +43,10 @@ self.addEventListener(
       handleException(end);
       initializedSWC = true;
     }
+    generate = await loadMapCSSCore(version);
 
-    const tokens = extractSimple(code);
-
-    if (configCache?.ts === rawConfig) {
+    const tokens = extractSimple(input);
+    if (configCache?.ts === config) {
       const module = configCache.mod;
       const { css } = generate(
         tokens,
@@ -56,7 +63,7 @@ self.addEventListener(
         start();
         handleException(start);
         const transpileResult = handleException(() =>
-          transformSync(rawConfig, transformOption)
+          transformSync(config, transformOption)
         ) as { code: string } | undefined;
 
         handleException(end);
@@ -80,16 +87,16 @@ self.addEventListener(
         const module = await importShim(uri);
         handleException(endMsg);
 
-        const config = module.default ?? {};
+        const mod = module.default ?? {};
         configCache = {
-          ts: rawConfig,
+          ts: config,
           js: transpileResult.code,
           uri,
-          mod: config,
+          mod,
         };
         const { css } = generate(
           tokens,
-          config,
+          mod,
         );
         const msg: Message = { type: "content", value: css };
 
@@ -167,4 +174,11 @@ function makeRoundTripMsg(
     start: () => self.postMessage(startMsg),
     end: () => self.postMessage(endMsg),
   };
+}
+
+async function loadMapCSSCore(version: string): Promise<typeof g> {
+  const module = await import(
+    `https://cdn.esm.sh/v73/@mapcss/core@${version}/es2021/core.bundle.js`
+  );
+  return module.generate;
 }

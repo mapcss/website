@@ -14,11 +14,11 @@ import {
   decode,
   encode,
 } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
-import { BASE_ISSUE_URL } from "~/utils/constant.ts";
+import { BASE_ISSUE_URL, DEFAULT_MAPCSS_VERSION } from "~/utils/constant.ts";
 import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
 
-import type { ErrorLike, Message } from "~/utils/message.ts";
+import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
 
@@ -51,14 +51,13 @@ function getInput(
 async function getIssueReportUrl({
   input,
   config,
-}: {
-  input: string;
-  config: string;
-}): Promise<string> {
+  version,
+}: Data): Promise<string> {
   const reportUrl = new URL(BASE_ISSUE_URL);
-  const playgroundLink = await makeShareURL({ input, config });
+  const playgroundLink = await makeShareURL({ input, config, version });
   reportUrl.searchParams.set("input", input);
   reportUrl.searchParams.set("config", config);
+  reportUrl.searchParams.set("version", version);
   reportUrl.searchParams.set("playground-link", playgroundLink.toString());
 
   return reportUrl.toString();
@@ -71,12 +70,13 @@ export const editorOptions: EditorProps["options"] = {
 };
 
 const makeShareURL = async (
-  { input, config }: { input: string; config: string },
+  { input, config, version }: Data,
 ): Promise<URL> => {
   const url = new URL(window.location.href);
 
   url.searchParams.set("input", encode(input));
   url.searchParams.set("config", encode(config));
+  url.searchParams.set("version", encode(version));
   return url;
 };
 
@@ -99,6 +99,7 @@ const tabs:
   ];
 
 export default function Playground() {
+  const [version] = useState(DEFAULT_MAPCSS_VERSION);
   const state = useContext(ToastContext);
   const toast = useToast(state);
   const [input, setInput] = useState<string>(() =>
@@ -186,7 +187,8 @@ export default function Playground() {
         setResult({ status: "wait", type: data.value });
       }
     };
-    worker.postMessage({ code: input, rawConfig });
+    const data: Data = { input, config: rawConfigDiff, version };
+    worker.postMessage(data);
   }, [worker, input, rawConfigDiff]);
 
   type Result =
@@ -342,6 +344,7 @@ export default function Playground() {
                     const url = await getIssueReportUrl({
                       input,
                       config: rawConfigDiff,
+                      version,
                     });
                     window.open(url, "_blank")?.focus();
                   }}
@@ -357,6 +360,7 @@ export default function Playground() {
                     const url = await makeShareURL({
                       input,
                       config: rawConfigDiff,
+                      version,
                     });
                     window.navigator.clipboard.writeText(
                       url.href,
