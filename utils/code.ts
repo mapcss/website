@@ -33,27 +33,8 @@ export const CODE =
 </div>
 `;
 
-export const RAW_CONFIG = `/**
- * @remarks
- * MapCSS is published to deno.land/x x.nest.land, npm registry.
- * To deno.land/x, x.nest.land is published in TypeScript, so we use JavaScript module in Browser.
- *
- * @example
- * Deno env
- *
- * \`\`\`ts
- * import { generate } from "https://deno.land/x/mapcss/core/mod.ts"
- * import { presetSVG } from "https://x.nest.land/mapcss/preset_svg/mod.ts"
- * \`\`\`
- *
- * Browser
- * \`\`\`js
- * import { presetTw } from "https://esm.sh/@mapcss/preset-tw"
- * import { presetTypography } from "https://esm.sh/@mapcss/preset-typography"
- * import { presetSVG } from "https://esm.sh/@mapcss/preset-svg"
- * \`\`\`
- */
-import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
+export const RAW_CONFIG =
+  `import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
 import type { Config } from "config"
 
 /** Depending on the Browser, you can try the following features:

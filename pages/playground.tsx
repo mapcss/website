@@ -11,6 +11,7 @@ import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import { decode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
+import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
@@ -38,6 +39,22 @@ function getInput(
   } else {
     return "";
   }
+}
+
+async function getIssueReportUrl({
+  input,
+  config,
+}: {
+  input: string;
+  config: string;
+}): Promise<string> {
+  const reportUrl = new URL(BASE_ISSUE_URL);
+  const playgroundLink = await makeShareURL({ input, config });
+  reportUrl.searchParams.set("input", input);
+  reportUrl.searchParams.set("config", config);
+  reportUrl.searchParams.set("playground-link", playgroundLink.toString());
+
+  return reportUrl.toString();
 }
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
@@ -256,7 +273,7 @@ export default function Playground() {
           <div className="h-full flex flex-col lg:border-r border-slate-900/10">
             <div
               role="toolbar"
-              className="pr-2 justify-between inline-flex whitespace-pre"
+              className="pr-1 justify-between inline-flex whitespace-pre"
             >
               <div
                 role="tablist"
@@ -317,6 +334,21 @@ export default function Playground() {
                   />
                   <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
                     Save
+                  </span>
+                </button>
+                <button
+                  onClick={async () => {
+                    const url = await getIssueReportUrl({
+                      input,
+                      config: rawConfigDiff,
+                    });
+                    window.open(url, "_blank")?.focus();
+                  }}
+                  className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
+                >
+                  <span className="i-mdi-bug w-4 h-4" />
+                  <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
+                    Report issue
                   </span>
                 </button>
                 <button
