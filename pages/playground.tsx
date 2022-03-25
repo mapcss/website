@@ -286,12 +286,11 @@ export default function Playground() {
                     key={name}
                     {...rest}
                     className={clsx(
-                      {
-                        "border-amber-500 italic": select === i,
-                        "border-transparent": select !== i,
-                      },
+                      select === i
+                        ? "border-amber-500 italic"
+                        : "border-transparent",
                       className,
-                      "pl-3 py-0.5 inline-flex items-center border-b-1",
+                      "pl-3 inline-flex items-center border-b-1",
                     )}
                   >
                     <span className={clsx(icon)} />
@@ -313,7 +312,7 @@ export default function Playground() {
                 ))}
               </div>
 
-              <section className="flex-none px-1 items-center space-x-1 whitespace-pre">
+              <section className="flex-none px-1 py-0.5 items-center space-x-1 whitespace-pre">
                 <button
                   disabled={!enabledSave}
                   onClick={save}
