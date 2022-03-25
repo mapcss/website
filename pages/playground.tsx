@@ -271,13 +271,10 @@ export default function Playground() {
         <Header className="flex-none" />
         <main className="lg:grid flex-1 grid-cols-2">
           <div className="h-full flex flex-col lg:border-r border-slate-900/10">
-            <div
-              role="toolbar"
-              className="pr-1 justify-between inline-flex whitespace-pre"
-            >
+            <div role="toolbar" className="justify-between flex">
               <div
                 role="tablist"
-                className="flex-shrink-0 overflow-x-scroll"
+                className="overflow-x-scroll flex"
                 aria-orientation="horizontal"
               >
                 {tabs.map(({ name, className, icon, ...rest }, i) => (
@@ -290,14 +287,15 @@ export default function Playground() {
                     {...rest}
                     className={clsx(
                       {
-                        "border-amber-500 italic border-b-1": select === i,
+                        "border-amber-500 italic": select === i,
+                        "border-transparent": select !== i,
                       },
                       className,
-                      "pl-3 py-0.5",
+                      "pl-3 py-0.5 inline-flex items-center border-b-1",
                     )}
                   >
                     <span className={clsx(icon)} />
-                    <span className="align-middle mx-1">
+                    <span className="mx-1">
                       {name}
                     </span>
                     <span
@@ -315,7 +313,7 @@ export default function Playground() {
                 ))}
               </div>
 
-              <section className="flex items-center space-x-1">
+              <section className="flex-none px-1 items-center space-x-1 whitespace-pre">
                 <button
                   disabled={!enabledSave}
                   onClick={save}
