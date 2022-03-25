@@ -274,7 +274,7 @@ export default function Playground() {
             <div role="toolbar" className="justify-between flex">
               <div
                 role="tablist"
-                className="overflow-x-scroll flex"
+                className="overflow-x-scroll flex-1 flex"
                 aria-orientation="horizontal"
               >
                 {tabs.map(({ name, className, icon, ...rest }, i) => (
@@ -317,10 +317,8 @@ export default function Playground() {
                   disabled={!enabledSave}
                   onClick={save}
                   className={clsx(
-                    "group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 focus:ring-1 ring-amber-500 transition duration-200 hover:bg-gray-100 dark:hover:bg-dark-300 disabled:text-gray-400",
-                    {
-                      "hidden": select !== 1,
-                    },
+                    "group relative space-x-2 rounded-md p-1 border-1 border-slate-900/10 dark:border-slate-300/10 focus:ring-1 ring-amber-500 transition duration-200 hover:bg-gray-100 dark:hover:bg-dark-300 disabled:text-gray-400",
+                    select === 1 ? "inline-flex" : "hidden",
                   )}
                 >
                   <span
