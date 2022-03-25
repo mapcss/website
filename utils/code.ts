@@ -1,6 +1,7 @@
 export const CODE =
   `<div class="h-full overflow-hidden grid place-items-center">
-  <div class="p-6 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg">
+  <div class="p-6 relative bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800/99 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg">
+    <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-teal-500 blur-md animate-pulse animate-spin-2 -z-1"></div>
     <div class="max-w-md mx-auto">
       <div class="divide-y divide-gray-300/50">
         <div class="py-8 text-base leading-7 space-y-6">
@@ -32,27 +33,8 @@ export const CODE =
 </div>
 `;
 
-export const RAW_CONFIG = `/**
- * @remarks
- * MapCSS is published to deno.land/x x.nest.land, npm registry.
- * To deno.land/x, x.nest.land is published in TypeScript, so we use JavaScript module in Browser.
- *
- * @example
- * Deno env
- *
- * \`\`\`ts
- * import { generate } from "https://deno.land/x/mapcss/core/mod.ts"
- * import { presetSVG } from "https://x.nest.land/mapcss/preset_svg/mod.ts"
- * \`\`\`
- *
- * Browser
- * \`\`\`js
- * import { presetTw } from "https://esm.sh/@mapcss/preset-tw"
- * import { presetTypography } from "https://esm.sh/@mapcss/preset-typography"
- * import { presetSVG } from "https://esm.sh/@mapcss/preset-svg"
- * \`\`\`
- */
-import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
+export const RAW_CONFIG =
+  `import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
 import type { Config } from "config"
 
 /** Depending on the Browser, you can try the following features:
