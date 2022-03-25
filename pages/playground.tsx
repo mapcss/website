@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import Editor, {
   EditorProps,
   OnMount,
@@ -15,6 +15,9 @@ import {
   encode,
 } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import { BASE_ISSUE_URL } from "~/utils/constant.ts";
+import { ToastContext } from "~/contexts/mod.ts";
+import useToast from "~/hooks/use_toast.ts";
+
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
@@ -24,6 +27,7 @@ const DESCRIPTION =
 const TITLE = `MapCSS Playground`;
 const Err = dynamic(() => import("~/components/err.tsx"));
 const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
+const Alert = dynamic(() => import("~/components/alert.tsx"));
 
 function getInput(
   { param, defaultAs }: { param: string; defaultAs: string },
@@ -95,6 +99,8 @@ const tabs:
   ];
 
 export default function Playground() {
+  const state = useContext(ToastContext);
+  const toast = useToast(state);
   const [input, setInput] = useState<string>(() =>
     getInput({ param: "input", defaultAs: CODE })
   );
@@ -355,6 +361,21 @@ export default function Playground() {
                     window.navigator.clipboard.writeText(
                       url.href,
                     );
+                    toast({
+                      render: ({ enqueued, dispose }) => (
+                        <Alert
+                          className={enqueued ? "opacity-100" : "opacity-0"}
+                          icon={<span className="i-mdi-check-circle w-6 h-6" />}
+                          close={
+                            <button className="inline-flex" onClick={dispose}>
+                              <span className="i-mdi-close w-6 h-6" />
+                            </button>
+                          }
+                        >
+                          URL is copied to clipboard.
+                        </Alert>
+                      ),
+                    });
                   }}
                   className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
                 >
