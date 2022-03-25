@@ -10,7 +10,10 @@ import { clsx } from "~/deps.ts";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
-import { decode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
+import {
+  decode,
+  encode,
+} from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import type { ErrorLike, Message } from "~/utils/message.ts";
 
@@ -66,9 +69,6 @@ export const editorOptions: EditorProps["options"] = {
 const makeShareURL = async (
   { input, config }: { input: string; config: string },
 ): Promise<URL> => {
-  const { encode } = await import(
-    "https://deno.land/std@0.131.0/encoding/base64url.ts"
-  );
   const url = new URL(window.location.href);
 
   url.searchParams.set("input", encode(input));
