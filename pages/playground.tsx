@@ -11,6 +11,7 @@ import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
+import { autoCloseTag } from "~/utils/monaco.ts";
 import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
@@ -391,6 +392,7 @@ export default function Playground() {
                       defaultLanguage="html"
                       onChange={(v) => setInput(v ?? "")}
                       defaultValue={CODE}
+                      onMount={(editor) => autoCloseTag(editor)}
                       value={input}
                       theme={theme}
                     />
