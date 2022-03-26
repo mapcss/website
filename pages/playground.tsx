@@ -10,13 +10,11 @@ import { clsx } from "~/deps.ts";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
-import {
-  decode,
-  encode,
-} from "https://deno.land/std@0.131.0/encoding/base64url.ts";
-import { BASE_ISSUE_URL, DEFAULT_MAPCSS_VERSION } from "~/utils/constant.ts";
+import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
+import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
+import { getParam, useVersion } from "~/hooks/use_mapcss.ts";
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 
@@ -28,25 +26,6 @@ const TITLE = `MapCSS Playground`;
 const Err = dynamic(() => import("~/components/err.tsx"));
 const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 const Alert = dynamic(() => import("~/components/alert.tsx"));
-
-function getInput(
-  { param, defaultAs }: { param: string; defaultAs: string },
-): string {
-  if (window) {
-    const url = new URL(window.location.href);
-    const _input = url.searchParams.get(param);
-    try {
-      const input = _input
-        ? new TextDecoder().decode(decode(_input))
-        : defaultAs;
-      return input;
-    } catch {
-      return CODE;
-    }
-  } else {
-    return "";
-  }
-}
 
 async function getIssueReportUrl({
   input,
@@ -99,17 +78,15 @@ const tabs:
   ];
 
 export default function Playground() {
-  const [version, setVersion] = useState(() =>
-    getInput({ param: "version", defaultAs: DEFAULT_MAPCSS_VERSION })
-  );
+  const { version, setVersion, latestVersions } = useVersion();
   const state = useContext(ToastContext);
   const toast = useToast(state);
   const [input, setInput] = useState<string>(() =>
-    getInput({ param: "input", defaultAs: CODE })
+    getParam({ param: "input", defaultAs: CODE })
   );
 
   const configSetter = () =>
-    getInput({ param: "config", defaultAs: RAW_CONFIG });
+    getParam({ param: "config", defaultAs: RAW_CONFIG });
 
   const [cssSheet, setCSSSheet] = useState("");
   const [rawConfig, setRawConfig] = useState<string>(
@@ -328,10 +305,9 @@ export default function Playground() {
                   onChange={(v) => setVersion(v.currentTarget.value)}
                   className="focus:outline-none px-1 fixed z-1 bottom-4 right-4 sm:static rounded-md border-1 border-slate-900/10 dark:border-slate-300/10 h-[26px] cursor-pointer backdrop-blur hover:bg-gray-100 dark:hover:bg-dark-300 transition duration-200 focus:ring-1 ring-amber-500"
                 >
-                  <option>v1.0.0-beta.45</option>
-                  <option>v1.0.0-beta.44</option>
-                  <option>v1.0.0-beta.43</option>
-                  <option>v1.0.0-beta.42</option>
+                  {latestVersions.map((version) => (
+                    <option key={version}>{version}</option>
+                  ))}
                 </select>
                 <button
                   disabled={!enabledSave}
