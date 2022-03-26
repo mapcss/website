@@ -26,7 +26,7 @@ export const CODE =
     <div class="pt-8 text-base leading-7 font-semibold">
       <p class="text-gray-900 dark:text-white">Want to dig deeper into MapCSS?</p>
       <p>
-        <a href="/docs/installation/" class="text-amber-500 hover:text-amber-600 transition-colors duration-200">Read the docs<span class="i-mdi-arrow-right-thick">&rarr;</span></a>
+        <a href="/docs/installation" class="text-amber-500 hover:text-amber-600 transition-colors duration-200">Read the docs<span class="i-mdi-arrow-right-thick">&rarr;</span></a>
       </p>
     </div>
   </div>
