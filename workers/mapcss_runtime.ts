@@ -1,10 +1,16 @@
 import "~/utils/has_own_polyfill.ts";
-import { extractSimple, generate } from "@mapcss/core/mod.ts";
+import { extractSimple } from "@mapcss/core/extract.ts";
+import type { generate as g } from "@mapcss/core/generate.ts";
 import initSWC, { transformSync } from "https://esm.sh/@swc/wasm-web@1.2.160";
 import { isString } from "~/deps.ts";
 
 import { transformOption } from "~/utils/swcrc.ts";
-import type { ErrorLike, Message, ProgressMessage } from "~/utils/message.ts";
+import type {
+  Data,
+  ErrorLike,
+  Message,
+  ProgressMessage,
+} from "~/utils/message.ts";
 
 declare global {
   interface Window {
@@ -15,40 +21,54 @@ declare global {
   }
 }
 
+type ImportShim = (url: string) => Promise<any>;
+
 let configCache:
   | { ts: string; js: string; uri: string; mod: object }
   | undefined;
-let importShimCache: ((url: string) => Promise<any>) | undefined;
+const versionCache: Set<string> = new Set();
 let initializedSWC: boolean = false;
 
 self.addEventListener(
   "message",
   async (
-    { data: { code, rawConfig } }: MessageEvent<
-      { code: string; rawConfig: string }
+    { data: { input, config, version } }: MessageEvent<
+      Data
     >,
   ) => {
-    if (!initializedSWC) {
-      const msg: ProgressMessage = { type: "progress", value: "init" };
-      const { start, end } = makeRoundTripMsg(msg);
-      handleException(start);
-      await initSWC("https://esm.sh/@swc/wasm-web/wasm_bg.wasm");
-      handleException(end);
-      initializedSWC = true;
-    }
+    try {
+      if (!initializedSWC) {
+        const msg: ProgressMessage = { type: "progress", value: "init" };
+        const { start, end } = makeRoundTripMsg(msg);
+        handleException(start);
+        await initSWC("https://esm.sh/@swc/wasm-web/wasm_bg.wasm");
+        handleException(end);
+        initializedSWC = true;
+      }
 
-    const tokens = extractSimple(code);
+      const importShim = await useImportShim();
 
-    if (configCache?.ts === rawConfig) {
-      const module = configCache.mod;
-      const { css } = generate(
-        tokens,
-        module,
-      );
-      const msg: Message = { type: "content", value: css };
-      handleException(() => self.postMessage(msg));
-    } else {
-      try {
+      const generate = versionCache.has(version)
+        ? await loadMapCSSCore(version, importShim)
+        : await (async () => {
+          const msg: ProgressMessage = { type: "progress", value: "import" };
+          const { start, end } = makeRoundTripMsg(msg);
+          start();
+          const generate = await loadMapCSSCore(version, importShim);
+          end();
+          return generate;
+        })();
+      versionCache.add(version);
+      const tokens = extractSimple(input);
+      if (configCache?.ts === config) {
+        const module = configCache.mod;
+        const { css } = generate(
+          tokens,
+          module,
+        );
+        const msg: Message = { type: "content", value: css };
+        handleException(() => self.postMessage(msg));
+      } else {
         const { start, end } = makeRoundTripMsg({
           type: "progress",
           value: "compile",
@@ -56,7 +76,7 @@ self.addEventListener(
         start();
         handleException(start);
         const transpileResult = handleException(() =>
-          transformSync(rawConfig, transformOption)
+          transformSync(config, transformOption)
         ) as { code: string } | undefined;
 
         handleException(end);
@@ -67,39 +87,31 @@ self.addEventListener(
         });
         handleException(startMsg);
 
-        const importShim = importShimCache
-          ? importShimCache
-          : await (async () => {
-            const isSupported = await isSupportImport();
-            const importShim = getImportShim(isSupported);
-            importShimCache = importShim;
-            return importShim;
-          })();
         const uri = `data:text/javascript;base64,${btoa(transpileResult.code)}`;
 
         const module = await importShim(uri);
         handleException(endMsg);
 
-        const config = module.default ?? {};
+        const mod = module.default ?? {};
         configCache = {
-          ts: rawConfig,
+          ts: config,
           js: transpileResult.code,
           uri,
-          mod: config,
+          mod,
         };
         const { css } = generate(
           tokens,
-          config,
+          mod,
         );
         const msg: Message = { type: "content", value: css };
 
         handleException(() => self.postMessage(msg));
-      } catch (e) {
-        if (e instanceof Error) {
-          const msg: Message = { type: "error", value: toErrorLike(e) };
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        const msg: Message = { type: "error", value: toErrorLike(e) };
 
-          handleException(() => self.postMessage(msg));
-        }
+        handleException(() => self.postMessage(msg));
       }
     }
   },
@@ -136,6 +148,16 @@ function handleException(fn: () => any): unknown {
   }
 }
 
+let importShimCache: ImportShim | undefined;
+async function useImportShim(): Promise<(url: string) => Promise<any>> {
+  return importShimCache ? importShimCache : await (async () => {
+    const isSupported = await isSupportImport();
+    const importShim = getImportShim(isSupported);
+    importShimCache = importShim;
+    return importShim;
+  })();
+}
+
 async function isSupportImport(): Promise<boolean> {
   try {
     await (0, eval)('import("")');
@@ -167,4 +189,14 @@ function makeRoundTripMsg(
     start: () => self.postMessage(startMsg),
     end: () => self.postMessage(endMsg),
   };
+}
+
+async function loadMapCSSCore(
+  version: string,
+  importShim: ImportShim,
+): Promise<typeof g> {
+  const module = await importShim(
+    `https://cdn.esm.sh/v73/@mapcss/core@${version}/es2021/core.bundle.js`,
+  );
+  return module.generate;
 }

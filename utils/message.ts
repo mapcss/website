@@ -12,3 +12,8 @@ export type Message =
   | ProgressMessage;
 
 export type ErrorLike = Pick<Error, "message" | "name" | "stack">;
+export type Data = {
+  input: string;
+  config: string;
+  version: string;
+};

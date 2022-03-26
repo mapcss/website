@@ -90,6 +90,13 @@ const config: GenerateConfig = {
         toObject,
       ).unwrap(),
     },
+    "select": {
+      ...chain(generate("bg-transparent", base).ast).map(
+        filterDeclaration,
+      ).map(
+        toObject,
+      ).unwrap(),
+    },
   }),
   cssMap: {
     max: {

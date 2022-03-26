@@ -20,7 +20,7 @@ function Alert(
   return (
     <div
       className={clsx(
-        "fixed inset-x-0 right-0 flex sm:left-auto text-green-50 bottom-0 sm:bottom-4 sm:right-4 transition shadow border border-green-700 p-2 sm:rounded-md duration-1000 space-x-2 bg-green-800",
+        "fixed z-1 inset-x-0 right-0 flex sm:left-auto text-green-50 bottom-0 sm:bottom-4 sm:right-4 transition shadow border border-green-700 p-2 sm:rounded-md duration-1000 space-x-2 bg-green-800",
         className,
       )}
       {...rest}
