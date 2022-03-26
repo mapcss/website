@@ -21,11 +21,12 @@ declare global {
   }
 }
 
+type ImportShim = (url: string) => Promise<any>;
+
 let configCache:
   | { ts: string; js: string; uri: string; mod: object }
   | undefined;
 const versionCache: Set<string> = new Set();
-let importShimCache: ((url: string) => Promise<any>) | undefined;
 let initializedSWC: boolean = false;
 
 self.addEventListener(
@@ -45,13 +46,15 @@ self.addEventListener(
         initializedSWC = true;
       }
 
+      const importShim = await useImportShim();
+
       const generate = versionCache.has(version)
-        ? await loadMapCSSCore(version)
+        ? await loadMapCSSCore(version, importShim)
         : await (async () => {
           const msg: ProgressMessage = { type: "progress", value: "import" };
           const { start, end } = makeRoundTripMsg(msg);
           start();
-          const generate = await loadMapCSSCore(version);
+          const generate = await loadMapCSSCore(version, importShim);
           end();
           return generate;
         })();
@@ -84,14 +87,6 @@ self.addEventListener(
         });
         handleException(startMsg);
 
-        const importShim = importShimCache
-          ? importShimCache
-          : await (async () => {
-            const isSupported = await isSupportImport();
-            const importShim = getImportShim(isSupported);
-            importShimCache = importShim;
-            return importShim;
-          })();
         const uri = `data:text/javascript;base64,${btoa(transpileResult.code)}`;
 
         const module = await importShim(uri);
@@ -153,6 +148,16 @@ function handleException(fn: () => any): unknown {
   }
 }
 
+let importShimCache: ImportShim | undefined;
+async function useImportShim(): Promise<(url: string) => Promise<any>> {
+  return importShimCache ? importShimCache : await (async () => {
+    const isSupported = await isSupportImport();
+    const importShim = getImportShim(isSupported);
+    importShimCache = importShim;
+    return importShim;
+  })();
+}
+
 async function isSupportImport(): Promise<boolean> {
   try {
     await (0, eval)('import("")');
@@ -186,9 +191,12 @@ function makeRoundTripMsg(
   };
 }
 
-async function loadMapCSSCore(version: string): Promise<typeof g> {
-  const module = await import(
-    `https://cdn.esm.sh/v73/@mapcss/core@${version}/es2021/core.bundle.js`
+async function loadMapCSSCore(
+  version: string,
+  importShim: ImportShim,
+): Promise<typeof g> {
+  const module = await importShim(
+    `https://cdn.esm.sh/v73/@mapcss/core@${version}/es2021/core.bundle.js`,
   );
   return module.generate;
 }
