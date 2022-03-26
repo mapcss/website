@@ -24,9 +24,9 @@ declare global {
 let configCache:
   | { ts: string; js: string; uri: string; mod: object }
   | undefined;
+const versionCache: Set<string> = new Set();
 let importShimCache: ((url: string) => Promise<any>) | undefined;
 let initializedSWC: boolean = false;
-let generate: typeof g | undefined;
 
 self.addEventListener(
   "message",
@@ -35,27 +35,37 @@ self.addEventListener(
       Data
     >,
   ) => {
-    if (!initializedSWC) {
-      const msg: ProgressMessage = { type: "progress", value: "init" };
-      const { start, end } = makeRoundTripMsg(msg);
-      handleException(start);
-      await initSWC("https://esm.sh/@swc/wasm-web/wasm_bg.wasm");
-      handleException(end);
-      initializedSWC = true;
-    }
-    generate = await loadMapCSSCore(version);
+    try {
+      if (!initializedSWC) {
+        const msg: ProgressMessage = { type: "progress", value: "init" };
+        const { start, end } = makeRoundTripMsg(msg);
+        handleException(start);
+        await initSWC("https://esm.sh/@swc/wasm-web/wasm_bg.wasm");
+        handleException(end);
+        initializedSWC = true;
+      }
 
-    const tokens = extractSimple(input);
-    if (configCache?.ts === config) {
-      const module = configCache.mod;
-      const { css } = generate(
-        tokens,
-        module,
-      );
-      const msg: Message = { type: "content", value: css };
-      handleException(() => self.postMessage(msg));
-    } else {
-      try {
+      const generate = versionCache.has(version)
+        ? await loadMapCSSCore(version)
+        : await (async () => {
+          const msg: ProgressMessage = { type: "progress", value: "import" };
+          const { start, end } = makeRoundTripMsg(msg);
+          start();
+          const generate = await loadMapCSSCore(version);
+          end();
+          return generate;
+        })();
+      versionCache.add(version);
+      const tokens = extractSimple(input);
+      if (configCache?.ts === config) {
+        const module = configCache.mod;
+        const { css } = generate(
+          tokens,
+          module,
+        );
+        const msg: Message = { type: "content", value: css };
+        handleException(() => self.postMessage(msg));
+      } else {
         const { start, end } = makeRoundTripMsg({
           type: "progress",
           value: "compile",
@@ -101,12 +111,12 @@ self.addEventListener(
         const msg: Message = { type: "content", value: css };
 
         handleException(() => self.postMessage(msg));
-      } catch (e) {
-        if (e instanceof Error) {
-          const msg: Message = { type: "error", value: toErrorLike(e) };
+      }
+    } catch (e) {
+      if (e instanceof Error) {
+        const msg: Message = { type: "error", value: toErrorLike(e) };
 
-          handleException(() => self.postMessage(msg));
-        }
+        handleException(() => self.postMessage(msg));
       }
     }
   },
