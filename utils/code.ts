@@ -1,7 +1,7 @@
 export const CODE =
   `<div class="h-full overflow-hidden grid place-items-center">
   <div class="p-6 relative mx-4 bg-white text-gray-600 dark:text-slate-200 dark:bg-dark-800/99 shadow-xl ring-1 ring-dark-900/6 dark:ring-white/10 sm:max-w-lg sm:mx-auto sm:rounded-lg">
-    <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-teal-500 blur-md animate-pulse animate-spin-2 -z-1"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-amber-500 to-teal-500 blur-md animate-pulse -z-1"></div>
     <div class="max-w-md mx-auto">
       <div class="divide-y divide-gray-300/50">
         <div class="py-8 text-base leading-7 space-y-6">
