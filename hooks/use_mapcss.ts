@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { loadVersion } from "~/utils/load.ts";
 import { useDeno } from "aleph/react";
 import { decode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
+import { DEFAULT_VERSION } from "~/utils/constant.ts";
 export function getParam(
   { param, defaultAs }: { param: string; defaultAs: string },
 ): string {
@@ -22,11 +23,11 @@ export function getParam(
 }
 
 export const useVersion = () => {
-  const defaultAs = useDeno(async () => {
+  const defaultAs = useDeno<string | null>(async () => {
     const { latest } = await loadVersion();
     return latest;
-  });
-  const [version, setVersion] = useState(() =>
+  }) ?? DEFAULT_VERSION;
+  const [version, setVersion] = useState<string>(() =>
     getParam({ param: "version", defaultAs })
   );
   const [versions, setVersions] = useState([version]);
