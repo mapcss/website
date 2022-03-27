@@ -341,7 +341,8 @@ export default function Playground() {
                       config: rawConfigDiff,
                       version,
                     });
-                    if (url.length > 8232) {
+                    // GitHub max data size
+                    if (url.length > 8190) {
                       toast({
                         duration: 100000,
                         render: ({ dispose }) => (
