@@ -22,6 +22,15 @@ export function getParam(
   }
 }
 
+const desc = <T extends string | number>(a: T, b: T): number => {
+  if (a < b) {
+    return 1;
+  } else if (a > b) {
+    return -1;
+  }
+  return 0;
+};
+
 export const useVersion = () => {
   const defaultAs = useDeno<string | null>(async () => {
     const { latest } = await loadVersion();
@@ -31,7 +40,10 @@ export const useVersion = () => {
     getParam({ param: "version", defaultAs })
   );
   const [versions, setVersions] = useState([version]);
-  const latestVersions = useMemo(() => versions.slice(0, 5), [versions]);
+  const latestVersions = useMemo<string[]>(
+    () => [...versions.slice(0, 5)].sort(desc),
+    [versions],
+  );
   useEffect(() => {
     loadVersion().then(({ versions }) => {
       const v = new Set([defaultAs, ...versions]);
