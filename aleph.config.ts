@@ -9,8 +9,6 @@ import { iconifyJSON, presetSVG } from "@mapcss/preset_svg/mod.ts";
 import { chain } from "@mapcss/preset_svg/deps.ts";
 import { presetTypography } from "@mapcss/preset_typography/mod.ts";
 import { preflightCSS, presetTw } from "@mapcss/preset_tw/mod.ts";
-import { deepMerge } from "https://deno.land/std@0.130.0/collections/deep_merge.ts";
-
 import remarkFrontmatter from "https://cdn.skypack.dev/remark-frontmatter";
 import { remarkMdxFrontmatter } from "https://esm.sh/remark-mdx-frontmatter";
 import rehypeSlug from "https://esm.sh/rehype-slug@5";
@@ -70,7 +68,7 @@ const base: GenerateConfig = {
 
 const config: GenerateConfig = {
   ...base,
-  css: deepMerge(preflightCSS, {
+  css: [preflightCSS, {
     ".dark": {
       ...chain(generate(["bg-dark-900", "text-slate-50"], base).ast).map(
         filterDeclaration,
@@ -107,7 +105,7 @@ const config: GenerateConfig = {
         toObject,
       ).unwrap(),
     },
-  }),
+  }],
   cssMap: {
     max: {
       w: {
