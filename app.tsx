@@ -6,6 +6,7 @@ import {
 } from "~/contexts/mod.ts";
 import useDarkMode from "~/hooks/use_dark_mode.ts";
 import useNode from "~/hooks/use_node.ts";
+import "./style/map.css";
 import type { State as ToastState } from "~/hooks/use_toast.ts";
 
 export default function App(
