@@ -16,6 +16,7 @@ import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
 import { getParam, useVersion } from "~/hooks/use_mapcss.ts";
+import useRender, { Renderer } from "~/hooks/use_render.ts";
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 
@@ -103,6 +104,7 @@ export default function Playground() {
 
   const theme = useColorModeValue("light", "vs-dark");
   const darkClass = useColorModeValue("", "dark");
+  const [nodes, render] = useRender();
   const cssStyle = useMemo(() => {
     if (!window || !cssSheet) return;
     const style = new CSSStyleSheet();
@@ -343,16 +345,15 @@ export default function Playground() {
                     });
                     // GitHub max data size
                     if (url.length > 8190) {
-                      toast({
-                        duration: 100000,
-                        render: ({ dispose }) => (
+                      render({
+                        fn: ({ unmount }) => (
                           <div
                             role="dialog"
                             className="inset-0 fixed backdrop-blur z-2 grid place-items-center"
                           >
                             <div className="bg-white overflow-scroll h-full sm:h-140 w-full sm:w-120 border-gray-200 shadow dark:bg-dark-800 border dark:border-dark-200 rounded-md">
                               <header className="px-4 py-2">
-                                <button onClick={dispose}>
+                                <button onClick={unmount}>
                                   <span className="i-mdi-close h-6 w-6" />
                                 </button>
                               </header>
@@ -552,6 +553,8 @@ export default function Playground() {
           </div>
         </main>
       </div>
+
+      <Renderer>{nodes}</Renderer>
     </>
   );
 }
