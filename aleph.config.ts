@@ -90,8 +90,18 @@ const config: GenerateConfig = {
         toObject,
       ).unwrap(),
     },
-    "select": {
-      ...chain(generate("bg-transparent", base).ast).map(
+    "select, textarea, input": {
+      ...chain(
+        generate([
+          "bg-transparent",
+          "borer",
+          "border-gray-100",
+          "dark:border-dark-300",
+          "px-2",
+          "py-1",
+          "appearance-none",
+        ], base).ast,
+      ).map(
         filterDeclaration,
       ).map(
         toObject,

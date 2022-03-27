@@ -11,6 +11,7 @@ import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
+import { autoCloseTag } from "~/utils/monaco.ts";
 import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
@@ -26,6 +27,7 @@ const TITLE = `MapCSS Playground`;
 const Err = dynamic(() => import("~/components/err.tsx"));
 const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 const Alert = dynamic(() => import("~/components/alert.tsx"));
+const IssueForm = dynamic(() => import("~/components/issue_form.tsx"));
 
 async function getIssueReportUrl({
   input,
@@ -254,7 +256,7 @@ export default function Playground() {
         <meta name="apple-mobile-web-app-title" content={TITLE} />
         <meta name="application-name" content={TITLE} />
       </head>
-      <div className="h-screen flex flex-col">
+      <div className="h-screen overflow-hidden flex flex-col">
         <Header className="flex-none" />
         <main className="lg:grid flex-1 grid-cols-2">
           <div className="h-full flex flex-col lg:border-r border-slate-900/10">
@@ -334,7 +336,63 @@ export default function Playground() {
                       config: rawConfigDiff,
                       version,
                     });
-                    window.open(url, "_blank")?.focus();
+                    const playgroundLink = await makeShareURL({
+                      input,
+                      config: rawConfigDiff,
+                      version,
+                    });
+                    // GitHub max data size
+                    if (url.length > 8190) {
+                      toast({
+                        duration: 100000,
+                        render: ({ dispose }) => (
+                          <div
+                            role="dialog"
+                            className="inset-0 fixed backdrop-blur z-2 grid place-items-center"
+                          >
+                            <div className="bg-white overflow-scroll h-full sm:h-140 w-full sm:w-120 border-gray-200 shadow dark:bg-dark-800 border dark:border-dark-200 rounded-md">
+                              <header className="px-4 py-2">
+                                <button onClick={dispose}>
+                                  <span className="i-mdi-close h-6 w-6" />
+                                </button>
+                              </header>
+                              <section className="px-4 pb-4">
+                                <div className="text-center mb-4 sm:mb-8">
+                                  <span className="i-mdi-bug w-20 h-26 sm:w-24 sm:h-24" />
+                                  <span className="i-mdi-arrow-right-bold w-12 h-12 sm:w-16 sm:h-16" />
+                                  <span className="i-mdi-github w-20 h-20 sm:w-24 sm:h-24" />
+                                </div>
+                                <p className="sm:text-center">
+                                  The data to be sent to GitHub was too large.
+                                </p>
+                                <p className="sm:text-center">
+                                  Please open{" "}
+                                  <a
+                                    className="text-amber-500 font-bold"
+                                    href={BASE_ISSUE_URL}
+                                    target="_blank"
+                                  >
+                                    issue
+                                  </a>{" "}
+                                  and try Copy & Paste.
+                                </p>
+                                <hr className="my-3 border-gray-100 border-dark-300" />
+                                <IssueForm
+                                  {...{
+                                    input,
+                                    config: rawConfigDiff,
+                                    version,
+                                    playgroundLink: playgroundLink.toString(),
+                                  }}
+                                />
+                              </section>
+                            </div>
+                          </div>
+                        ),
+                      });
+                    } else {
+                      window.open(url, "_blank")?.focus();
+                    }
                   }}
                   className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
                 >
@@ -391,6 +449,7 @@ export default function Playground() {
                       defaultLanguage="html"
                       onChange={(v) => setInput(v ?? "")}
                       defaultValue={CODE}
+                      onMount={(editor) => autoCloseTag(editor)}
                       value={input}
                       theme={theme}
                     />
