@@ -17,6 +17,7 @@ import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
 import { getParam, useVersion } from "~/hooks/use_mapcss.ts";
 import useRender, { Renderer } from "~/hooks/use_render.ts";
+import parser from "https://deno.land/x/ua_parser_js@1.0.2/src/ua-parser.js";
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 
@@ -53,17 +54,14 @@ async function getIssueReportUrl({
   return reportUrl.toString();
 }
 
-async function getBrowserVersion(): Promise<string> {
-  const parser = await import(
-    "https://deno.land/x/ua_parser_js@1.0.2/src/ua-parser.js"
-  ).then((module) => module.default);
+function getBrowserVersion(): string {
   try {
     const { browser } = parser();
     if (browser.name && browser.version) {
       return `${browser.name} ${browser.version}`;
     }
   } catch {}
-  return ""
+  return "";
 }
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
@@ -364,7 +362,7 @@ export default function Playground() {
                 </button>
                 <button
                   onClick={async () => {
-                    const runtime = await getBrowserVersion();
+                    const runtime = getBrowserVersion();
                     const url = await getIssueReportUrl({
                       input,
                       config: rawConfigDiff,
