@@ -22,6 +22,7 @@ export default function App(
         <meta name="viewport" content="width=device-width" />
         <meta charSet="utf-8" />
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <link rel="prefetch" href="/worker.js" />
       </head>
 
       <DarkModeContext.Provider value={[isDark, setDark]}>
