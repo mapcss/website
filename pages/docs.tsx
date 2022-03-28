@@ -82,7 +82,7 @@ export default function Docs({ Page, pageProps }: DocsProps) {
                         <li key={href}>
                           <a
                             className="block border-l pl-4 -ml-px border-transparent hover:border-slate-400 dark:hover:border-slate-500 text-slate-700 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-300"
-                            data-active-className="text-sky-500 border-current font-semibold dark:text-sky-400 hover:text-red-500"
+                            data-active-className="text-amber-500 border-current font-semibold dark:text-amber-400"
                             href={href}
                             rel="nav"
                           >
@@ -107,7 +107,7 @@ export default function Docs({ Page, pageProps }: DocsProps) {
         <div className="lg:ml-80 xl:mr-80">
           <main className="max-w-3xl mx-auto px-4 pt-10 xl:max-w-none xl:ml-0 xl:px-8">
             <article className="prose">
-              <p className="mb-2 text-sm leading-6 font-semibold text-sky-500 dark:text-sky-400">
+              <p className="mb-2 text-sm leading-6 font-semibold text-amber-500 dark:text-amber-400">
                 {category}
               </p>
               <h1 className="inline-block text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight dark:text-slate-200">

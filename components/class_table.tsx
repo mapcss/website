@@ -85,7 +85,7 @@ function ClassTable({ rules, samples = [] }: ClassTableProps) {
               const style = stringifyCSSObject(cssObject);
               return (
                 <tr key={key + style}>
-                  <td className="py-2 pr-2 font-mono font-medium text-xs leading-6 text-sky-500 whitespace-nowrap dark:text-sky-400">
+                  <td className="py-2 pr-2 font-mono font-medium text-xs leading-6 text-amber-500 whitespace-nowrap dark:text-amber-400">
                     {key}
                   </td>
                   <td className="py-2 pl-2 font-mono text-xs leading-6 text-indigo-600 whitespace-pre dark:text-indigo-300 sm:table-cell sm:pr-2">
