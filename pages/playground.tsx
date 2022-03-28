@@ -205,13 +205,13 @@ export default function Playground() {
     if (result.status !== "wait") return;
     switch (result.type) {
       case "init": {
-        return "Initializing TypeScript Compiler...";
+        return "Initialize TypeScript Compiler...";
       }
       case "compile": {
-        return "Compiling Config...";
+        return "Compile config...";
       }
       case "import": {
-        return "Fetching Modules...";
+        return "Fetch modules, live binding...";
       }
       default: {
         return "Processing...";
@@ -224,7 +224,7 @@ export default function Playground() {
     switch (result.type) {
       case "init":
       case "compile": {
-        return "text-blue-500";
+        return "text-blue-600";
       }
       case "import": {
         return "text-amber-500";
