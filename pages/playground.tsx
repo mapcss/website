@@ -17,6 +17,7 @@ import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
 import { getParam, useVersion } from "~/hooks/use_mapcss.ts";
 import useRender, { Renderer } from "~/hooks/use_render.ts";
+import parser from "https://deno.land/x/ua_parser_js@1.0.2/src/ua-parser.js";
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 
@@ -36,15 +37,31 @@ async function getIssueReportUrl({
   input,
   config,
   version,
-}: Data): Promise<string> {
+  runtime,
+}: Data & { runtime: string }): Promise<string> {
   const reportUrl = new URL(BASE_ISSUE_URL);
   const playgroundLink = await makeShareURL({ input, config, version });
-  reportUrl.searchParams.set("input", input);
-  reportUrl.searchParams.set("config", config);
-  reportUrl.searchParams.set("version", version);
-  reportUrl.searchParams.set("playground-link", playgroundLink.toString());
-
+  const table: [string, string][] = [
+    ["input", input],
+    ["config", config],
+    ["version", version],
+    ["playground-link", playgroundLink.toString()],
+    ["runtime", runtime],
+  ];
+  table.filter(([key, value]) => !!key && !!value).forEach(([key, value]) => {
+    reportUrl.searchParams.set(key, value);
+  });
   return reportUrl.toString();
+}
+
+function getBrowserVersion(): string {
+  try {
+    const { browser } = parser();
+    if (browser.name && browser.version) {
+      return `${browser.name} ${browser.version}`;
+    }
+  } catch {}
+  return "";
 }
 export const editorOptions: EditorProps["options"] = {
   fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
@@ -345,16 +362,19 @@ export default function Playground() {
                 </button>
                 <button
                   onClick={async () => {
+                    const runtime = getBrowserVersion();
                     const url = await getIssueReportUrl({
                       input,
                       config: rawConfigDiff,
                       version,
+                      runtime,
                     });
                     const playgroundLink = await makeShareURL({
                       input,
                       config: rawConfigDiff,
                       version,
                     });
+
                     // GitHub max data size
                     if (url.length > 8190) {
                       render({
@@ -396,6 +416,7 @@ export default function Playground() {
                                     config: rawConfigDiff,
                                     version,
                                     playgroundLink: playgroundLink.toString(),
+                                    runtime,
                                   }}
                                 />
                               </section>
@@ -458,7 +479,6 @@ export default function Playground() {
                       options={{
                         ...editorOptions,
                       }}
-                      path="file:///aaa.ts"
                       loading={<></>}
                       defaultLanguage="html"
                       onChange={(v) => setInput(v ?? "")}

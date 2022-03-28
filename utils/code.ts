@@ -20,13 +20,19 @@ export const CODE =
             Preview output <code class="text-sm font-bold text-gray-900 dark:text-white">CSS</code> and <code class="text-sm font-bold text-gray-900 dark:text-white">Element</code>
           </p>
         </li>
+        <li class="flex items-center">
+          <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span>
+          <p class="ml-4">
+           Sharing, reporting issue is easy
+          </p>
+        </li>
       </ul>
       <p>Perfect for learning how the framework works, prototyping a new idea, or creating a demo to share online.</p>
     </div>
     <div class="pt-8 text-base leading-7 font-semibold">
       <p class="text-gray-900 dark:text-white">Want to dig deeper into MapCSS?</p>
       <p>
-        <a href="/docs/installation" class="text-amber-500 hover:text-amber-600 transition-colors duration-200">Read the docs<span class="i-mdi-arrow-right-thick">&rarr;</span></a>
+        <a href="/docs/installation" target="_blank" class="text-amber-500 hover:text-amber-600 transition-colors duration-200">Read the docs<span class="i-mdi-arrow-right-thick">&rarr;</span></a>
       </p>
     </div>
   </div>
