@@ -22,7 +22,16 @@ export function Header(
     >
       <div className={clsx(innerClassName)}>
         <div className="flex justify-between py-4 border-b border-slate-900/10 lg:px-8 lg:border-0 dark:border-slate-300/10 mx-4 lg:mx-0">
-          <a href="/" className="font-semibold text-xl">MapCSS</a>
+          <a
+            href="/"
+            className="font-semibold text-xl inline-flex items-center space-x-2"
+          >
+            <span className="i-logo w-7 h-7" />
+
+            <span>
+              MapCSS
+            </span>
+          </a>
 
           <div className="flex space-x-4 sm:space-x-8 items-center">
             <nav className="text-sm hidden sm:block leading-6 font-semibold text-slate-700 dark:text-slate-200">
