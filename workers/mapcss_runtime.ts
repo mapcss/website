@@ -41,7 +41,7 @@ self.addEventListener(
         const msg: ProgressMessage = { type: "progress", value: "init" };
         const { start, end } = makeRoundTripMsg(msg);
         handleException(start);
-        await initSWC("https://esm.sh/@swc/wasm-web/wasm_bg.wasm");
+        await initSWC("https://esm.sh/@swc/wasm-web@1.2.160/wasm_bg.wasm");
         handleException(end);
         initializedSWC = true;
       }
