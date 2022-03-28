@@ -41,6 +41,7 @@ export const CODE =
 
 export const RAW_CONFIG =
   `import { presetTw, preflightCSS } from "https://esm.sh/@mapcss/preset-tw@beta"
+import { simpleExtractor } from "https://esm.sh/@mapcss/config@beta"
 import type { Config } from "config"
 
 /** Depending on the Browser, you can try the following features:
@@ -57,6 +58,7 @@ import type { Config } from "config"
 export default <Config> {
   separator: "-",
   variablePrefix: "map-",
+  extractor: simpleExtractor,
   preset: [
     presetTw({
       darkMode: "class",

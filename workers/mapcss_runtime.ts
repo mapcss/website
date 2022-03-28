@@ -1,5 +1,5 @@
 import "~/utils/has_own_polyfill.ts";
-import { extractSimple } from "@mapcss/core/extract.ts";
+import { Config, isConfigModule, resolveConfig } from "@mapcss/config/mod.ts";
 import type { generate as g } from "@mapcss/core/generate.ts";
 import initSWC, { transformSync } from "https://esm.sh/@swc/wasm-web@1.2.160";
 import { isString } from "~/deps.ts";
@@ -24,7 +24,7 @@ declare global {
 type ImportShim = (url: string) => Promise<any>;
 
 let configCache:
-  | { ts: string; js: string; uri: string; mod: object }
+  | { ts: string; js: string; uri: string; mod: Config }
   | undefined;
 const versionCache: Set<string> = new Set();
 let initializedSWC: boolean = false;
@@ -59,12 +59,14 @@ self.addEventListener(
           return generate;
         })();
       versionCache.add(version);
-      const tokens = extractSimple(input);
       if (configCache?.ts === config) {
-        const module = configCache.mod;
+        const config = configCache.mod;
+        const { outputConfig, inputConfig } = resolveConfig(config);
+        const tokens = inputConfig?.extractor?.fn(input) ?? input;
+
         const { css } = generate(
           tokens,
-          module,
+          outputConfig,
         );
         const msg: Message = { type: "content", value: css };
         handleException(() => self.postMessage(msg));
@@ -91,17 +93,18 @@ self.addEventListener(
 
         const module = await importShim(uri);
         handleException(endMsg);
-
-        const mod = module.default ?? {};
+        const configMod = isConfigModule(module) ? module.default : {};
         configCache = {
           ts: config,
           js: transpileResult.code,
           uri,
-          mod,
+          mod: configMod,
         };
+        const { outputConfig, inputConfig } = resolveConfig(configMod);
+        const tokens = inputConfig?.extractor?.fn(input) ?? input;
         const { css } = generate(
           tokens,
-          mod,
+          outputConfig,
         );
         const msg: Message = { type: "content", value: css };
 
@@ -196,7 +199,7 @@ async function loadMapCSSCore(
   importShim: ImportShim,
 ): Promise<typeof g> {
   const module = await importShim(
-    `https://cdn.esm.sh/v73/@mapcss/core@${version}/es2021/core.bundle.js`,
+    `https://esm.sh/v73/@mapcss/core@${version}?bundle`,
   );
   return module.generate;
 }
