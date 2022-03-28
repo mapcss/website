@@ -17,6 +17,8 @@ import {
 } from "https://deno.land/std@0.132.0/path/mod.ts";
 import type { Config } from "aleph/types";
 
+const mediaDirPath = join(dirname(fromFileUrl(import.meta.url)), "media");
+
 export default <Config> {
   plugins: [
     mapcssPlugin({
@@ -35,8 +37,11 @@ export default <Config> {
     }),
     publicCopy([
       {
-        from: join(dirname(fromFileUrl(import.meta.url)), "media", "logo.svg"),
+        from: join(mediaDirPath, "logo.svg"),
         basename: "favicon.svg",
+      },
+      {
+        from: join(mediaDirPath, "hero-playground.png"),
       },
     ]),
   ],

@@ -8,7 +8,7 @@ import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
-import { dynamic } from "aleph/react";
+import { dynamic, useRouter } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import { autoCloseTag } from "~/utils/monaco.ts";
@@ -25,6 +25,8 @@ import "https://unpkg.com/construct-style-sheets-polyfill";
 const DESCRIPTION =
   `An online playground for MapCSS lets you use all of MapCSS's features directly in the browser.`;
 const TITLE = `MapCSS Playground`;
+const BASE_URL = `https://mapcss.miyauchi.dev`;
+const OG_IMAGE = `${BASE_URL}/hero-playground.png`;
 const Err = dynamic(() => import("~/components/err.tsx"));
 const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 const Alert = dynamic(() => import("~/components/alert.tsx"));
@@ -253,8 +255,18 @@ export default function Playground() {
         />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content={TITLE} />
+        <meta property="og:url" content={BASE_URL} />
+        <meta property="og:image" content={OG_IMAGE} />
         <meta name="twitter:title" content={TITLE} />
         <meta name="twitter:description" content={DESCRIPTION} />
+        <meta
+          name="twitter:card"
+          content="summary_large_image"
+        />
+        <meta
+          name="twitter:image"
+          content={OG_IMAGE}
+        />
         <meta name="apple-mobile-web-app-title" content={TITLE} />
         <meta name="application-name" content={TITLE} />
       </head>
@@ -304,6 +316,14 @@ export default function Playground() {
               </div>
 
               <section className="flex-none px-1 py-0.5 flex text-sm items-center space-x-1 whitespace-pre">
+                <button
+                  onClick={async () => {
+                    const res = await fetch("file:///aaa.ts").catch(() => {});
+                    console.log(res);
+                  }}
+                >
+                  fff
+                </button>
                 <select
                   value={version}
                   onChange={(v) => setVersion(v.currentTarget.value)}
@@ -446,6 +466,7 @@ export default function Playground() {
                       options={{
                         ...editorOptions,
                       }}
+                      path="file:///aaa.ts"
                       loading={<></>}
                       defaultLanguage="html"
                       onChange={(v) => setInput(v ?? "")}
