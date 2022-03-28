@@ -6,3 +6,5 @@ public/worker.js
 *.log
 .vercel
 .firebase
+style/map.css
+public/favicon.svg
