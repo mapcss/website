@@ -41,7 +41,7 @@ export function Header(
                     className={clsx({
                       "text-amber-500": routePath.startsWith("/docs/"),
                     })}
-                    href="/docs/installation/"
+                    href="/docs/installation"
                   >
                     Docs
                   </a>
@@ -50,7 +50,7 @@ export function Header(
                   <a
                     rel="nav"
                     data-active-className="text-amber-500"
-                    href="/playground/"
+                    href="/playground"
                   >
                     Playground
                   </a>
