@@ -12,7 +12,16 @@ import { chain } from "@mapcss/preset_svg/deps.ts";
 import { toObject } from "https://deno.land/x/postcss_js@v1.0.0-beta.4/mod.ts";
 import { filterDeclaration, generate } from "@mapcss/core/mod.ts";
 // import postcss100Fix from "https://esm.sh/postcss-100vh-fix";
+import {
+  dirname,
+  fromFileUrl,
+  join,
+} from "https://deno.land/std@0.132.0/path/mod.ts";
 import type { Config } from "@mapcss/config/mod.ts";
+
+const logoSvg = Deno.readTextFileSync(
+  join(dirname(fromFileUrl(import.meta.url)), "media", "logo.svg"),
+);
 
 const base: Config = {
   preset: [
@@ -37,6 +46,7 @@ const base: Config = {
       },
     }),
     presetSVG({
+      logo: logoSvg,
       mdi: iconifyJSON(mdi),
       vscode: {
         icons: iconifyJSON(vscodeIcons),

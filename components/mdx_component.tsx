@@ -32,7 +32,7 @@ export const components: MDXComponents = {
     const $id = `#${id}`;
     return (
       <h2
-        className="group flex whitespace-pre-wrap mb-2 text-sm leading-6 text-sky-500 font-semibold tracking-normal dark:text-sky-400"
+        className="group flex whitespace-pre-wrap mb-2 text-sm leading-6 text-amber-500 font-semibold tracking-normal dark:text-amber-400"
         id={id}
         {...rest}
       >
