@@ -8,7 +8,7 @@ import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
-import { dynamic, useRouter } from "aleph/react";
+import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import { autoCloseTag } from "~/utils/monaco.ts";
@@ -316,14 +316,6 @@ export default function Playground() {
               </div>
 
               <section className="flex-none px-1 py-0.5 flex text-sm items-center space-x-1 whitespace-pre">
-                <button
-                  onClick={async () => {
-                    const res = await fetch("file:///aaa.ts").catch(() => {});
-                    console.log(res);
-                  }}
-                >
-                  fff
-                </button>
                 <select
                   value={version}
                   onChange={(v) => setVersion(v.currentTarget.value)}
