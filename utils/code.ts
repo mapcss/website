@@ -20,6 +20,12 @@ export const CODE =
             Preview output <code class="text-sm font-bold text-gray-900 dark:text-white">CSS</code> and <code class="text-sm font-bold text-gray-900 dark:text-white">Element</code>
           </p>
         </li>
+        <li class="flex items-center">
+          <span class="w-6 h-6 flex-none text-teal-500 i-mdi-check-circle">✓</span>
+          <p class="ml-4">
+           Link to issue easily
+          </p>
+        </li>
       </ul>
       <p>Perfect for learning how the framework works, prototyping a new idea, or creating a demo to share online.</p>
     </div>
