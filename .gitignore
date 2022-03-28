@@ -7,4 +7,5 @@ public/worker.js
 .vercel
 .firebase
 style/map.css
-public/favicon.svg
+public/*.svg
+public/*.png
