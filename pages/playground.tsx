@@ -273,7 +273,7 @@ export default function Playground() {
     if ((ev.currentTarget as Window).innerWidth > 1024) {
       setReflect(0);
     }
-  }, { deps: [], enabled: select === 3 });
+  }, { deps: [], enabled: [3, 4].includes(select) });
 
   return (
     <>
@@ -413,7 +413,7 @@ export default function Playground() {
                     theme={theme}
                   />
                 )
-                : select === 3
+                : select === 3 || select === 4
                 ? result.status === "wait"
                   ? (
                     <Loading
@@ -422,17 +422,23 @@ export default function Playground() {
                     />
                   )
                   : result.status === "success"
-                  ? cssStyle && input && (
-                    <ShadowRoot
-                      {...shadowRootProps}
-                      onRender={handleOnRender(cssStyle)}
-                    >
-                      <div
-                        className={clsx("h-full", darkClass)}
-                        dangerouslySetInnerHTML={{ __html: input }}
+                  ? select === 3
+                    ? cssStyle && input && (
+                      <ShadowRoot
+                        {...shadowRootProps}
+                        onRender={handleOnRender(cssStyle)}
+                      >
+                        <div
+                          className={clsx("h-full", darkClass)}
+                          dangerouslySetInnerHTML={{ __html: input }}
+                        />
+                      </ShadowRoot>
+                    )
+                    : (
+                      <Editor
+                        {...makeJSONEditorProps({ value: token, theme })}
                       />
-                    </ShadowRoot>
-                  )
+                    )
                   : result.status === "error"
                   ? error && <Err file="config" className="h-full" e={error} />
                   : <></>

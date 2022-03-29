@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo, useState } from "react";
+import React, { createElement, Fragment, useMemo, useState } from "react";
 import { clsx, EditorProps } from "~/deps.ts";
 import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import parser from "https://deno.land/x/ua_parser_js@1.0.2/src/ua-parser.js";
@@ -48,7 +48,7 @@ export const makeJSONEditorProps = (props: EditorProps): EditorProps => ({
       enabled: false,
     },
   },
-  loading: Fragment,
+  loading: createElement(Fragment),
   ...props,
 });
 
@@ -177,6 +177,15 @@ export const makeShareURL = async (
   return url;
 };
 
+const previewTab = {
+  name: "preview",
+  icon: "i-mdi-tablet-dashboard w-4 h-4",
+};
+const tokenTab = {
+  name: "token",
+  icon: "i-mdi-arrow-decision-auto-outline w-4 h-4",
+};
+
 export const tabs:
   ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
     { name: "html", icon: "i-vscode-icons-file-type-html w-4 h-4" },
@@ -189,22 +198,16 @@ export const tabs:
       icon: "i-vscode-icons-file-type-css w-4 h-4",
     },
     {
-      name: "preview",
+      ...previewTab,
       className: "lg:hidden",
-      icon: "i-mdi-tablet-dashboard w-4 h-4",
     },
+    { ...tokenTab, className: "lg:hidden" },
   ];
 
 export const previewTabs:
   ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
-    {
-      name: "preview",
-      icon: "i-mdi-tablet-dashboard w-4 h-4",
-    },
-    {
-      name: "token",
-      icon: "i-mdi-arrow-decision-auto-outline w-4 h-4",
-    },
+    previewTab,
+    tokenTab,
   ];
 
 export const useToken = () => {
