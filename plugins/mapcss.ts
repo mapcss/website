@@ -1,5 +1,10 @@
-import { extractSimple, generate, GenerateConfig } from "@mapcss/core/mod.ts";
-import { resolveConfig, resolveConfigFile } from "@mapcss/config/mod.ts";
+import { generate, GenerateConfig } from "@mapcss/core/mod.ts";
+import {
+  applyExtractor,
+  resolveConfig,
+  resolveConfigFile,
+  simpleExtractor,
+} from "@mapcss/config/mod.ts";
 import { expandGlob, WalkEntry } from "https://deno.land/std@0.125.0/fs/mod.ts";
 import { ensureFileSync } from "https://deno.land/std@0.132.0/fs/ensure_file.ts";
 import { resolve, toFileUrl } from "https://deno.land/std@0.132.0/path/mod.ts";
@@ -12,13 +17,6 @@ export type Config = GenerateConfig & {
   ext?: string[];
 };
 
-const extractToken = (code: string, tokens: Set<string>) => {
-  const _tokens = extractSimple(code);
-  _tokens.forEach((token) => {
-    tokens.add(token);
-  });
-};
-
 export default function mapcssPlugin(
   { ext = ["tsx", "jsx"], ...rest }: Config,
 ): Plugin {
@@ -28,15 +26,25 @@ export default function mapcssPlugin(
       const config = await resolveConfigFile(
         toFileUrl(resolve(aleph.workingDir, "mapcss.config.ts")).toString(),
       );
-      const { outputConfig } = resolveConfig(config ?? rest);
+      const { outputConfig, inputConfig } = resolveConfig(config ?? rest);
       const filePath = "./style/map.css";
       ensureFileSync(filePath);
 
       const tokens = new Set<string>();
+      const extractToken = (code: string) => {
+        const _tokens = applyExtractor(
+          code,
+          inputConfig.extractor ?? [simpleExtractor],
+        );
+        _tokens.forEach((token) => {
+          tokens.add(token);
+        });
+        return tokens;
+      };
 
       aleph.onTransform("hmr", ({ code, module }) => {
         if (/\.tsx|\.mdx$/.test(module.specifier)) {
-          extractToken(code, tokens);
+          const tokens = extractToken(code);
           const { css } = generate(tokens, outputConfig);
           Deno.writeTextFileSync(filePath, css);
         }
@@ -55,8 +63,9 @@ export default function mapcssPlugin(
         );
         const allCode = texts.reduce((acc, cur) => `${acc}\n${cur}`, "");
         const id = `data-module-id="/style/map.css"`;
+        const tokens = extractToken(allCode);
 
-        const { css } = generate(extractSimple(allCode), {
+        const { css } = generate(tokens, {
           minify: true,
           ...outputConfig,
         });

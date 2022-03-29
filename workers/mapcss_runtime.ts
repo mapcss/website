@@ -1,5 +1,10 @@
 import "~/utils/has_own_polyfill.ts";
-import { Config, isConfigModule, resolveConfig } from "@mapcss/config/mod.ts";
+import {
+  applyExtractor,
+  Config,
+  isConfigModule,
+  resolveConfig,
+} from "@mapcss/config/mod.ts";
 import type { generate as g } from "@mapcss/core/generate.ts";
 import initSWC, { transformSync } from "https://esm.sh/@swc/wasm-web@1.2.160";
 import { isString } from "~/deps.ts";
@@ -62,13 +67,15 @@ self.addEventListener(
       if (configCache?.ts === config) {
         const config = configCache.mod;
         const { outputConfig, inputConfig } = resolveConfig(config);
-        const tokens = inputConfig?.extractor?.fn(input) ?? input;
+        const token = inputConfig.extractor
+          ? applyExtractor(input, inputConfig.extractor)
+          : input;
 
         const { css } = generate(
-          tokens,
+          token,
           outputConfig,
         );
-        const msg: Message = { type: "content", value: css };
+        const msg: Message = { type: "content", value: { css, token } };
         handleException(() => self.postMessage(msg));
       } else {
         const { start, end } = makeRoundTripMsg({
@@ -101,12 +108,14 @@ self.addEventListener(
           mod: configMod,
         };
         const { outputConfig, inputConfig } = resolveConfig(configMod);
-        const tokens = inputConfig?.extractor?.fn(input) ?? input;
+        const token = inputConfig.extractor
+          ? applyExtractor(input, inputConfig.extractor)
+          : input;
         const { css } = generate(
-          tokens,
+          token,
           outputConfig,
         );
-        const msg: Message = { type: "content", value: css };
+        const msg: Message = { type: "content", value: { css, token } };
 
         handleException(() => self.postMessage(msg));
       }

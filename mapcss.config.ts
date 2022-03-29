@@ -17,7 +17,11 @@ import {
   fromFileUrl,
   join,
 } from "https://deno.land/std@0.132.0/path/mod.ts";
-import type { Config } from "@mapcss/config/mod.ts";
+import {
+  bracketExtractor,
+  Config,
+  simpleExtractor,
+} from "@mapcss/config/mod.ts";
 
 const logoSvg = Deno.readTextFileSync(
   join(dirname(fromFileUrl(import.meta.url)), "media", "logo.svg"),
@@ -59,6 +63,7 @@ const base: Config = {
     }),
   ],
   postcssPlugin: [autoprefixer()],
+  extractor: [simpleExtractor, bracketExtractor],
 };
 const config: Config = {
   ...base,

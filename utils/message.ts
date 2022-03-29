@@ -8,7 +8,7 @@ export type Message =
     type: "error";
     value: ErrorLike;
   }
-  | { type: "content"; value: string }
+  | { type: "content"; value: { css: string; token: Set<string> | string } }
   | ProgressMessage;
 
 export type ErrorLike = Pick<Error, "message" | "name" | "stack">;
