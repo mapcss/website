@@ -67,15 +67,15 @@ self.addEventListener(
       if (configCache?.ts === config) {
         const config = configCache.mod;
         const { outputConfig, inputConfig } = resolveConfig(config);
-        const tokens = inputConfig.extractor
+        const token = inputConfig.extractor
           ? applyExtractor(input, inputConfig.extractor)
           : input;
 
         const { css } = generate(
-          tokens,
+          token,
           outputConfig,
         );
-        const msg: Message = { type: "content", value: css };
+        const msg: Message = { type: "content", value: { css, token } };
         handleException(() => self.postMessage(msg));
       } else {
         const { start, end } = makeRoundTripMsg({
@@ -108,14 +108,14 @@ self.addEventListener(
           mod: configMod,
         };
         const { outputConfig, inputConfig } = resolveConfig(configMod);
-        const tokens = inputConfig.extractor
+        const token = inputConfig.extractor
           ? applyExtractor(input, inputConfig.extractor)
           : input;
         const { css } = generate(
-          tokens,
+          token,
           outputConfig,
         );
-        const msg: Message = { type: "content", value: css };
+        const msg: Message = { type: "content", value: { css, token } };
 
         handleException(() => self.postMessage(msg));
       }
