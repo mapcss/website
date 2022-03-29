@@ -36,13 +36,12 @@ export const CODE =
 export const RAW_CONFIG =
   `import { preflightCSS, presetTw } from "https://esm.sh/@mapcss/preset-tw@beta";
 import { presetTypography } from "https://esm.sh/@mapcss/preset-typography@beta";
-import { simpleExtractor } from "https://esm.sh/@mapcss/config@beta";
+import { simpleExtractor, bracketExtractor } from "https://esm.sh/@mapcss/config@beta";
 import type { Config } from "config";
 
 /** You can try the following features:
  * - Chrome 80+
  * - iOS Safari 15+
- * - Other browsers that support module workers
  */
 // import { presetSVG, iconifyJSON } from "https://esm.sh/@mapcss/preset-svg@beta"
 // import mdi from "https://esm.sh/@iconify-json/mdi/icons.json" assert {
@@ -53,7 +52,7 @@ import type { Config } from "config";
 export default <Config> {
   separator: "-",
   variablePrefix: "map-",
-  extractor: simpleExtractor,
+  extractor: [simpleExtractor, bracketExtractor],
   preset: [
     presetTw({
       darkMode: "class",
@@ -293,12 +292,10 @@ export type MatchInfo = {
 export type Extractor = Labeled & {
   fn: (code: string) => Set<string>;
 };
+export type Arrayable<T> = T | T[];
 export type Config = {
-  /** Define content source */
-  content: string[];
-
   /** Token extractor
    * @default {@link SimpleExtractor}
    */
-  extractor?: Extractor;
+  extractor?: Arrayable<Extractor>;
 } & GenerateConfig`;
