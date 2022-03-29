@@ -21,6 +21,7 @@ import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
 import { getParam, useVersion } from "~/hooks/use_mapcss.ts";
 import useRender, { Renderer } from "~/hooks/use_render.ts";
+import { CSSEditorProps, JSONEditorProps } from "~/utils/monaco.ts";
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 import {
@@ -29,7 +30,6 @@ import {
   getIssueReportUrl,
   handleOnRender,
   Loading,
-  makeJSONEditorProps,
   makeShareURL,
   makeStatusClassName,
   makeStatusMessage,
@@ -273,7 +273,7 @@ export default function Playground() {
     if ((ev.currentTarget as Window).innerWidth > 1024) {
       setReflect(0);
     }
-  }, { deps: [], enabled: [3, 4].includes(select) });
+  }, { deps: [], enabled: [2, 3, 4].includes(select) });
 
   return (
     <>
@@ -400,20 +400,7 @@ export default function Playground() {
                     onMount={handleMount}
                   />
                 )
-                : select === 2
-                ? (
-                  <Editor
-                    options={{
-                      ...editorOptions,
-                      readOnly: true,
-                    }}
-                    loading={<></>}
-                    defaultLanguage="css"
-                    value={cssSheet}
-                    theme={theme}
-                  />
-                )
-                : select === 3 || select === 4
+                : [2, 3, 4].includes(select)
                 ? result.status === "wait"
                   ? (
                     <Loading
@@ -422,7 +409,7 @@ export default function Playground() {
                     />
                   )
                   : result.status === "success"
-                  ? select === 3
+                  ? select === 2
                     ? cssStyle && input && (
                       <ShadowRoot
                         {...shadowRootProps}
@@ -434,9 +421,19 @@ export default function Playground() {
                         />
                       </ShadowRoot>
                     )
+                    : select === 3
+                    ? (
+                      <Editor
+                        {...CSSEditorProps}
+                        value={cssSheet}
+                        theme={theme}
+                      />
+                    )
                     : (
                       <Editor
-                        {...makeJSONEditorProps({ value: token, theme })}
+                        {...JSONEditorProps}
+                        value={token}
+                        theme={theme}
                       />
                     )
                   : result.status === "error"
@@ -497,7 +494,17 @@ export default function Playground() {
                     : activeIndex === 1
                     ? (
                       <Editor
-                        {...makeJSONEditorProps({ value: token, theme })}
+                        {...CSSEditorProps}
+                        value={cssSheet}
+                        theme={theme}
+                      />
+                    )
+                    : activeIndex === 2
+                    ? (
+                      <Editor
+                        {...JSONEditorProps}
+                        value={token}
+                        theme={theme}
                       />
                     )
                     : <></>}
