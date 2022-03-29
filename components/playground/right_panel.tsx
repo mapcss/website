@@ -39,55 +39,6 @@ export const handleOnRender = (StyleSheet: StyleSheet): OnRender =>
     (root as any).adoptedStyleSheets = [StyleSheet];
   };
 
-export const makeJSONEditorProps = (props: EditorProps): EditorProps => ({
-  defaultLanguage: "json",
-  wrapperProps: { className: "flex-1" },
-  options: {
-    readOnly: true,
-    minimap: {
-      enabled: false,
-    },
-  },
-  loading: createElement(Fragment),
-  ...props,
-});
-
-const useResult = (result: Result) => {
-  const waitingMsg = useMemo(() => {
-    if (result.status !== "wait") return;
-    switch (result.type) {
-      case "init": {
-        return "Initialize TypeScript Compiler...";
-      }
-      case "compile": {
-        return "Compile config...";
-      }
-      case "import": {
-        return "Fetch modules, live binding...";
-      }
-      default: {
-        return "Processing...";
-      }
-    }
-  }, [result]);
-
-  const classNameMsg = useMemo(() => {
-    if (result.status !== "wait") return;
-    switch (result.type) {
-      case "init":
-      case "compile": {
-        return "text-blue-600";
-      }
-      case "import": {
-        return "text-amber-500";
-      }
-      default: {
-        return "text-teal-500";
-      }
-    }
-  }, [result]);
-};
-
 export type StatusType = "init" | "import" | "compile";
 
 export const makeStatusClassName = (type?: StatusType): string => {
@@ -181,9 +132,13 @@ const previewTab = {
   name: "preview",
   icon: "i-mdi-tablet-dashboard w-4 h-4",
 };
+const cssOutputTab = {
+  name: "css",
+  icon: "i-vscode-icons-file-type-css w-4 h-4",
+};
 const tokenTab = {
   name: "token",
-  icon: "i-mdi-arrow-decision-auto-outline w-4 h-4",
+  icon: "i-vscode-icons-file-type-light-json w-4 h-4",
 };
 
 export const tabs:
@@ -194,19 +149,17 @@ export const tabs:
       icon: "i-vscode-icons-file-type-typescript-official w-4 h-4",
     },
     {
-      name: "css",
-      icon: "i-vscode-icons-file-type-css w-4 h-4",
-    },
-    {
       ...previewTab,
       className: "lg:hidden",
     },
+    { ...cssOutputTab, className: "lg:hidden" },
     { ...tokenTab, className: "lg:hidden" },
   ];
 
 export const previewTabs:
   ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
     previewTab,
+    cssOutputTab,
     tokenTab,
   ];
 
