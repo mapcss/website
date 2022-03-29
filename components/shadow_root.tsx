@@ -1,9 +1,11 @@
 import { createElement, useEffect, useRef } from "react";
 
+export type OnRender = (shadowRoot: ShadowRoot) => void;
+
 export type Props<Tag extends keyof JSX.IntrinsicElements> =
   & {
     children: JSX.Element;
-    onRender?: (shadowRoot: ShadowRoot) => void;
+    onRender?: OnRender;
     as?: Tag;
   }
   & JSX.IntrinsicElements[Tag]

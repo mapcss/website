@@ -6,7 +6,6 @@ import React, {
   useState,
 } from "react";
 import Editor, {
-  EditorProps,
   OnMount,
 } from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v69";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
@@ -16,17 +15,30 @@ import { clsx } from "~/deps.ts";
 import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
-import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import { autoCloseTag } from "~/utils/monaco.ts";
 import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
 import { getParam, useVersion } from "~/hooks/use_mapcss.ts";
 import useRender, { Renderer } from "~/hooks/use_render.ts";
-import parser from "https://deno.land/x/ua_parser_js@1.0.2/src/ua-parser.js";
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
-import { Loading, Main } from "~/components/playground/right_panel.tsx";
+import {
+  editorOptions,
+  getBrowserVersion,
+  getIssueReportUrl,
+  handleOnRender,
+  Loading,
+  makeJSONEditorProps,
+  makeShareURL,
+  makeStatusClassName,
+  makeStatusMessage,
+  previewTabs,
+  Result,
+  shadowRootProps,
+  tabs,
+  useToken,
+} from "~/components/playground/right_panel.tsx";
 
 import "https://unpkg.com/construct-style-sheets-polyfill";
 
@@ -38,93 +50,7 @@ const OG_IMAGE = `${BASE_URL}/hero-playground.png`;
 const Err = dynamic(() => import("~/components/err.tsx"));
 const Alert = dynamic(() => import("~/components/alert.tsx"));
 const IssueForm = dynamic(() => import("~/components/issue_form.tsx"));
-
-async function getIssueReportUrl({
-  input,
-  config,
-  version,
-  runtime,
-}: Data & { runtime: string }): Promise<string> {
-  const reportUrl = new URL(BASE_ISSUE_URL);
-  const playgroundLink = await makeShareURL({ input, config, version });
-  const table: [string, string][] = [
-    ["input", input],
-    ["config", config],
-    ["version", version],
-    ["playground-link", playgroundLink.toString()],
-    ["runtime", runtime],
-  ];
-  table.filter(([key, value]) => !!key && !!value).forEach(([key, value]) => {
-    reportUrl.searchParams.set(key, value);
-  });
-  return reportUrl.toString();
-}
-
-function getBrowserVersion(): string {
-  try {
-    const { browser } = parser();
-    if (browser.name && browser.version) {
-      return `${browser.name} ${browser.version}`;
-    }
-  } catch {}
-  return "";
-}
-export const editorOptions: EditorProps["options"] = {
-  fontFamily: `Menlo, Monaco, 'Courier New', monospace`,
-  fontSize: 13,
-  minimap: { enabled: false },
-  tabSize: 2,
-};
-
-const makeShareURL = async (
-  { input, config, version }: Data,
-): Promise<URL> => {
-  const url = new URL(window.location.href);
-
-  url.searchParams.set("input", encode(input));
-  url.searchParams.set("config", encode(config));
-  url.searchParams.set("version", encode(version));
-  return url;
-};
-
-const tabs:
-  ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
-    { name: "html", icon: "i-vscode-icons-file-type-html w-4 h-4" },
-    {
-      name: "config",
-      icon: "i-vscode-icons-file-type-typescript-official w-4 h-4",
-    },
-    {
-      name: "css",
-      icon: "i-vscode-icons-file-type-css w-4 h-4",
-    },
-    {
-      name: "preview",
-      className: "lg:hidden",
-      icon: "i-mdi-tablet-dashboard w-4 h-4",
-    },
-  ];
-
-const previewTabs:
-  ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
-    {
-      name: "preview",
-      icon: "i-mdi-tablet-dashboard w-4 h-4",
-    },
-    {
-      name: "token",
-      icon: "i-mdi-arrow-decision-auto-outline w-4 h-4",
-    },
-  ];
-
-const useToken = () => {
-  const [state, setState] = useState<Set<string> | string>("");
-
-  const token = useMemo<string>(() => {
-    return JSON.stringify(Array.from(state), undefined, 2);
-  }, [state]);
-  return [token, setState] as const;
-};
+const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 
 export default function Playground() {
   const { version, setVersion, latestVersions } = useVersion();
@@ -223,13 +149,6 @@ export default function Playground() {
     worker.postMessage(data);
   }, [worker, input, rawConfigDiff, version]);
 
-  type Result =
-    | {
-      status: "success";
-    }
-    | { status: "error" }
-    | { status: "wait"; type?: "init" | "import" | "compile" };
-
   const handleClick: MouseEventHandler = async () => {
     const runtime = getBrowserVersion();
     const url = await getIssueReportUrl({
@@ -326,36 +245,12 @@ export default function Playground() {
   const [result, setResult] = useState<Result>({ status: "wait" });
   const waitingMsg = useMemo(() => {
     if (result.status !== "wait") return;
-    switch (result.type) {
-      case "init": {
-        return "Initialize TypeScript Compiler...";
-      }
-      case "compile": {
-        return "Compile config...";
-      }
-      case "import": {
-        return "Fetch modules, live binding...";
-      }
-      default: {
-        return "Processing...";
-      }
-    }
+    return makeStatusMessage(result.type);
   }, [result]);
 
   const classNameMsg = useMemo(() => {
     if (result.status !== "wait") return;
-    switch (result.type) {
-      case "init":
-      case "compile": {
-        return "text-blue-600";
-      }
-      case "import": {
-        return "text-amber-500";
-      }
-      default: {
-        return "text-teal-500";
-      }
-    }
+    return makeStatusClassName(result.type);
   }, [result]);
 
   const enabledSave = useMemo<boolean>(() => rawConfigDiff !== rawConfig, [
@@ -479,22 +374,20 @@ export default function Playground() {
 
             <div className="flex-1" role="tabpanel">
               {select === 0
-                ? (() => {
-                  return (
-                    <Editor
-                      options={{
-                        ...editorOptions,
-                      }}
-                      loading={<></>}
-                      defaultLanguage="html"
-                      onChange={(v) => setInput(v ?? "")}
-                      defaultValue={CODE}
-                      onMount={(editor) => autoCloseTag(editor)}
-                      value={input}
-                      theme={theme}
-                    />
-                  );
-                })()
+                ? (
+                  <Editor
+                    options={{
+                      ...editorOptions,
+                    }}
+                    loading={<></>}
+                    defaultLanguage="html"
+                    onChange={(v) => setInput(v ?? "")}
+                    defaultValue={CODE}
+                    onMount={(editor) => autoCloseTag(editor)}
+                    value={input}
+                    theme={theme}
+                  />
+                )
                 : select === 1
                 ? (
                   <Editor
@@ -530,9 +423,15 @@ export default function Playground() {
                   )
                   : result.status === "success"
                   ? cssStyle && input && (
-                    <Main StyleSheets={cssStyle} shadowClassName={darkClass}>
-                      {input}
-                    </Main>
+                    <ShadowRoot
+                      {...shadowRootProps}
+                      onRender={handleOnRender(cssStyle)}
+                    >
+                      <div
+                        className={clsx("h-full", darkClass)}
+                        dangerouslySetInnerHTML={{ __html: input }}
+                      />
+                    </ShadowRoot>
                   )
                   : result.status === "error"
                   ? error && <Err file="config" className="h-full" e={error} />
@@ -579,23 +478,20 @@ export default function Playground() {
                   </div>
                   {activeIndex === 0
                     ? (
-                      <Main StyleSheets={cssStyle} shadowClassName={darkClass}>
-                        {input}
-                      </Main>
+                      <ShadowRoot
+                        {...shadowRootProps}
+                        onRender={handleOnRender(cssStyle)}
+                      >
+                        <div
+                          className={clsx("h-full", darkClass)}
+                          dangerouslySetInnerHTML={{ __html: input }}
+                        />
+                      </ShadowRoot>
                     )
                     : activeIndex === 1
                     ? (
                       <Editor
-                        defaultLanguage="json"
-                        wrapperProps={{ className: "flex-1" }}
-                        value={token}
-                        options={{
-                          readOnly: true,
-                          minimap: {
-                            enabled: false,
-                          },
-                        }}
-                        theme={theme}
+                        {...makeJSONEditorProps({ value: token, theme })}
                       />
                     )
                     : <></>}
