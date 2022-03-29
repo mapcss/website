@@ -1,5 +1,5 @@
 import { createElement, Fragment } from "react";
-
+import { CODE } from "~/utils/code.ts";
 import { deepMerge, EditorProps, OnMount } from "~/deps.ts";
 
 /** Autocomplete close tag
@@ -57,6 +57,15 @@ const baseEditorProps = {
   },
   loading: createElement(Fragment),
 };
+
+export const htmlEditorProps: EditorProps = deepMerge(baseEditorProps, {
+  defaultLanguage: "html",
+  defaultValue: CODE,
+});
+
+export const tsEditorProps: EditorProps = deepMerge(baseEditorProps, {
+  defaultLanguage: "typescript",
+});
 
 export const JSONEditorProps: EditorProps = deepMerge(baseEditorProps, {
   language: "json",

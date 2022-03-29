@@ -21,7 +21,12 @@ import { ToastContext } from "~/contexts/mod.ts";
 import useToast from "~/hooks/use_toast.ts";
 import { getParam, useVersion } from "~/hooks/use_mapcss.ts";
 import useRender, { Renderer } from "~/hooks/use_render.ts";
-import { CSSEditorProps, JSONEditorProps } from "~/utils/monaco.ts";
+import {
+  CSSEditorProps,
+  htmlEditorProps,
+  JSONEditorProps,
+  tsEditorProps,
+} from "~/utils/monaco.ts";
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 import {
@@ -376,13 +381,8 @@ export default function Playground() {
               {select === 0
                 ? (
                   <Editor
-                    options={{
-                      ...editorOptions,
-                    }}
-                    loading={<></>}
-                    defaultLanguage="html"
+                    {...htmlEditorProps}
                     onChange={(v) => setInput(v ?? "")}
-                    defaultValue={CODE}
                     onMount={(editor) => autoCloseTag(editor)}
                     value={input}
                     theme={theme}
@@ -391,9 +391,7 @@ export default function Playground() {
                 : select === 1
                 ? (
                   <Editor
-                    options={editorOptions}
-                    loading={<></>}
-                    defaultLanguage="typescript"
+                    {...tsEditorProps}
                     onChange={(value) => setRawConfig(value ?? "")}
                     value={rawConfig}
                     theme={theme}
