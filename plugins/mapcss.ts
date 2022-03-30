@@ -40,10 +40,10 @@ export default function mapcssPlugin(
         return tokens;
       };
 
-      aleph.onTransform("hmr", ({ code, module }) => {
+      aleph.onTransform("hmr", async ({ code, module }) => {
         if (/\.tsx|\.mdx$/.test(module.specifier)) {
           const tokens = extractToken(code);
-          const { css } = generate(tokens, config ?? rest);
+          const { css } = await generate(tokens, config ?? rest);
           Deno.writeTextFileSync(filePath, css);
         }
       });
@@ -63,7 +63,7 @@ export default function mapcssPlugin(
         const id = `data-module-id="/style/map.css"`;
         const tokens = extractToken(allCode);
 
-        const { css } = generate(tokens, {
+        const { css } = await generate(tokens, {
           minify: true,
           ...config,
         });
