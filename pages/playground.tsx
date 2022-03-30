@@ -5,13 +5,10 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import Editor, {
-  OnMount,
-} from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v69";
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
-import { clsx } from "~/deps.ts";
+import { clsx, Editor, OnMount } from "~/deps.ts";
 import { CODE, CSS, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";

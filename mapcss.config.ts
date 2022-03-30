@@ -61,23 +61,36 @@ const base: Config = {
   postcssPlugin: [autoprefixer()],
   extractor: [simpleExtractor, bracketExtractor],
 };
+
+const a = await (generate(["bg-dark-900", "text-slate-50"], base));
+const b = await generate("antialiased", base);
+const c = await generate("outline-none", base);
+const d = await generate([
+  "bg-transparent",
+  "borer",
+  "border-gray-100",
+  "dark:border-dark-300",
+  "px-2",
+  "py-1",
+  "appearance-none",
+], base);
 const config: Config = {
   ...base,
   css: [preflightCSS, {
     ".dark": {
-      ...chain(generate(["bg-dark-900", "text-slate-50"], base).ast).map(
+      ...chain(a.ast).map(
         filterDeclaration,
       ).map(
         toObject,
       ).unwrap(),
     },
-    body: chain(generate("antialiased", base).ast).map(
+    body: chain(b.ast).map(
       filterDeclaration,
     ).map(
       toObject,
     ).unwrap(),
     "button:focus": {
-      ...chain(generate("outline-none", base).ast).map(
+      ...chain(c.ast).map(
         filterDeclaration,
       ).map(
         toObject,
@@ -85,15 +98,7 @@ const config: Config = {
     },
     "select, textarea, input": {
       ...chain(
-        generate([
-          "bg-transparent",
-          "borer",
-          "border-gray-100",
-          "dark:border-dark-300",
-          "px-2",
-          "py-1",
-          "appearance-none",
-        ], base).ast,
+        d.ast,
       ).map(
         filterDeclaration,
       ).map(
