@@ -68,9 +68,9 @@ self.addEventListener(
         const config = configCache.mod;
         const token = applyExtractor(input, config.extractor);
         const { css: _, ...rest } = config;
-        const result = transform(globalCSS, rest);
+        const result = await transform(globalCSS, rest);
 
-        const { css } = generate(
+        const { css } = await generate(
           token,
           config,
         );
@@ -110,7 +110,7 @@ self.addEventListener(
           mod: configMod,
         };
         const token = applyExtractor(input, configMod.extractor);
-        const { css } = generate(
+        const { css } = await generate(
           token,
           configMod,
         );
