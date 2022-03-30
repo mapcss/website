@@ -1,11 +1,6 @@
 import "~/utils/has_own_polyfill.ts";
-import {
-  applyExtractor,
-  Config,
-  isConfigModule,
-  resolveConfig,
-} from "@mapcss/config/mod.ts";
-import type { generate as g } from "@mapcss/core/generate.ts";
+import { isConfigModule } from "@mapcss/config/mod.ts";
+import { applyExtractor, Config, generate as g } from "@mapcss/core/mod.ts";
 import initSWC, { transformSync } from "https://esm.sh/@swc/wasm-web@1.2.160";
 import { isString } from "~/deps.ts";
 
@@ -37,7 +32,7 @@ let initializedSWC: boolean = false;
 self.addEventListener(
   "message",
   async (
-    { data: { input, config, version } }: MessageEvent<
+    { data: { input, config, version, css } }: MessageEvent<
       Data
     >,
   ) => {
@@ -66,14 +61,11 @@ self.addEventListener(
       versionCache.add(version);
       if (configCache?.ts === config) {
         const config = configCache.mod;
-        const { outputConfig, inputConfig } = resolveConfig(config);
-        const token = inputConfig.extractor
-          ? applyExtractor(input, inputConfig.extractor)
-          : input;
+        const token = applyExtractor(input, config.extractor);
 
         const { css } = generate(
           token,
-          outputConfig,
+          config,
         );
         const msg: Message = { type: "content", value: { css, token } };
         handleException(() => self.postMessage(msg));
@@ -107,13 +99,10 @@ self.addEventListener(
           uri,
           mod: configMod,
         };
-        const { outputConfig, inputConfig } = resolveConfig(configMod);
-        const token = inputConfig.extractor
-          ? applyExtractor(input, inputConfig.extractor)
-          : input;
+        const token = applyExtractor(input, configMod.extractor);
         const { css } = generate(
           token,
-          outputConfig,
+          configMod,
         );
         const msg: Message = { type: "content", value: { css, token } };
 
