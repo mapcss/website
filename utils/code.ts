@@ -36,7 +36,7 @@ export const CODE =
 export const RAW_CONFIG =
   `import { preflightCSS, presetTw } from "https://esm.sh/@mapcss/preset-tw@beta";
 import { presetTypography } from "https://esm.sh/@mapcss/preset-typography@beta";
-import { simpleExtractor, bracketExtractor } from "https://esm.sh/@mapcss/config@beta";
+import { simpleExtractor, bracketExtractor } from "https://esm.sh/@mapcss/core@beta";
 import type { Config } from "config";
 
 /** You can try the following features:

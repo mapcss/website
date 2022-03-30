@@ -16,4 +16,5 @@ export type Data = {
   input: string;
   config: string;
   version: string;
+  css: string;
 };

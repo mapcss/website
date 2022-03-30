@@ -1,10 +1,9 @@
-import { generate, GenerateConfig } from "@mapcss/core/mod.ts";
 import {
   applyExtractor,
-  resolveConfig,
-  resolveConfigFile,
-  simpleExtractor,
-} from "@mapcss/config/mod.ts";
+  Config as GenerateConfig,
+  generate,
+} from "@mapcss/core/mod.ts";
+import { resolveConfigFile } from "@mapcss/config/mod.ts";
 import { expandGlob, WalkEntry } from "https://deno.land/std@0.125.0/fs/mod.ts";
 import { ensureFileSync } from "https://deno.land/std@0.132.0/fs/ensure_file.ts";
 import { resolve, toFileUrl } from "https://deno.land/std@0.132.0/path/mod.ts";
@@ -26,7 +25,6 @@ export default function mapcssPlugin(
       const config = await resolveConfigFile(
         toFileUrl(resolve(aleph.workingDir, "mapcss.config.ts")).toString(),
       );
-      const { outputConfig, inputConfig } = resolveConfig(config ?? rest);
       const filePath = "./style/map.css";
       ensureFileSync(filePath);
 
@@ -34,7 +32,7 @@ export default function mapcssPlugin(
       const extractToken = (code: string) => {
         const _tokens = applyExtractor(
           code,
-          inputConfig.extractor ?? [simpleExtractor],
+          config?.extractor,
         );
         _tokens.forEach((token) => {
           tokens.add(token);
@@ -45,7 +43,7 @@ export default function mapcssPlugin(
       aleph.onTransform("hmr", ({ code, module }) => {
         if (/\.tsx|\.mdx$/.test(module.specifier)) {
           const tokens = extractToken(code);
-          const { css } = generate(tokens, outputConfig);
+          const { css } = generate(tokens, config ?? rest);
           Deno.writeTextFileSync(filePath, css);
         }
       });
@@ -67,7 +65,7 @@ export default function mapcssPlugin(
 
         const { css } = generate(tokens, {
           minify: true,
-          ...outputConfig,
+          ...config,
         });
         aleph.onRender((i) => {
           const head = i.html.head.filter((headTag) => !headTag.includes(id));

@@ -1,3 +1,4 @@
+import { bracketExtractor, Config, simpleExtractor } from "@mapcss/core/mod.ts";
 import { iconifyJSON, presetSVG } from "@mapcss/preset_svg/mod.ts";
 import { presetTypography } from "@mapcss/preset_typography/mod.ts";
 import { preflightCSS, presetTw } from "@mapcss/preset_tw/mod.ts";
@@ -17,11 +18,6 @@ import {
   fromFileUrl,
   join,
 } from "https://deno.land/std@0.132.0/path/mod.ts";
-import {
-  bracketExtractor,
-  Config,
-  simpleExtractor,
-} from "@mapcss/config/mod.ts";
 
 const logoSvg = Deno.readTextFileSync(
   join(dirname(fromFileUrl(import.meta.url)), "media", "logo.svg"),

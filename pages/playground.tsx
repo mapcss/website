@@ -30,7 +30,6 @@ import {
 
 import type { Data, ErrorLike, Message } from "~/utils/message.ts";
 import {
-  editorOptions,
   getBrowserVersion,
   getIssueReportUrl,
   handleOnRender,
@@ -57,8 +56,9 @@ const Alert = dynamic(() => import("~/components/alert.tsx"));
 const IssueForm = dynamic(() => import("~/components/issue_form.tsx"));
 const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 
-export default function Playground() {
+export default function Playground(): JSX.Element {
   const { version, setVersion, latestVersions } = useVersion();
+  const [globalCSS] = useState<string>("");
   const [token, setToken] = useToken();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const state = useContext(ToastContext);
@@ -150,23 +150,28 @@ export default function Playground() {
         setResult({ status: "wait", type: data.value });
       }
     };
-    const data: Data = { input, config: rawConfigDiff, version };
+    const data: Data = {
+      input,
+      config: rawConfigDiff,
+      version,
+      css: globalCSS,
+    };
     worker.postMessage(data);
   }, [worker, input, rawConfigDiff, version]);
 
   const handleClick: MouseEventHandler = async () => {
     const runtime = getBrowserVersion();
-    const url = await getIssueReportUrl({
+    const data: Data = {
       input,
       config: rawConfigDiff,
       version,
+      css: globalCSS,
+    };
+    const url = await getIssueReportUrl({
+      ...data,
       runtime,
     });
-    const playgroundLink = await makeShareURL({
-      input,
-      config: rawConfigDiff,
-      version,
-    });
+    const playgroundLink = await makeShareURL(data);
 
     // GitHub max data size
     if (url.length > 8190) {
@@ -205,9 +210,7 @@ export default function Playground() {
                 <hr className="my-3 border-gray-100 border-dark-300" />
                 <IssueForm
                   {...{
-                    input,
-                    config: rawConfigDiff,
-                    version,
+                    ...data,
                     playgroundLink: playgroundLink.toString(),
                     runtime,
                   }}
@@ -227,6 +230,7 @@ export default function Playground() {
       input,
       config: rawConfigDiff,
       version,
+      css: globalCSS,
     });
     window.navigator.clipboard.writeText(
       url.href,
