@@ -1,6 +1,11 @@
 import "~/utils/has_own_polyfill.ts";
 import { isConfigModule } from "@mapcss/config/mod.ts";
-import { applyExtractor, Config, generate as g } from "@mapcss/core/mod.ts";
+import {
+  applyExtractor,
+  Config,
+  generate as g,
+  transform,
+} from "@mapcss/core/mod.ts";
 import initSWC, { transformSync } from "https://esm.sh/@swc/wasm-web@1.2.160";
 import { isString } from "~/deps.ts";
 
@@ -32,7 +37,7 @@ let initializedSWC: boolean = false;
 self.addEventListener(
   "message",
   async (
-    { data: { input, config, version, css } }: MessageEvent<
+    { data: { input, config, version, css: globalCSS } }: MessageEvent<
       Data
     >,
   ) => {
@@ -62,12 +67,17 @@ self.addEventListener(
       if (configCache?.ts === config) {
         const config = configCache.mod;
         const token = applyExtractor(input, config.extractor);
+        const { css: _, ...rest } = config;
+        const result = transform(globalCSS, rest);
 
         const { css } = generate(
           token,
           config,
         );
-        const msg: Message = { type: "content", value: { css, token } };
+        const msg: Message = {
+          type: "content",
+          value: { css: `${css}`, token },
+        };
         handleException(() => self.postMessage(msg));
       } else {
         const { start, end } = makeRoundTripMsg({

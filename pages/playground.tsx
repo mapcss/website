@@ -12,7 +12,7 @@ import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
 import { clsx } from "~/deps.ts";
-import { CODE, RAW_CONFIG, TYPES } from "~/utils/code.ts";
+import { CODE, CSS, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import { autoCloseTag } from "~/utils/monaco.ts";
@@ -58,7 +58,7 @@ const ShadowRoot = dynamic(() => import("~/components/shadow_root.tsx"));
 
 export default function Playground(): JSX.Element {
   const { version, setVersion, latestVersions } = useVersion();
-  const [globalCSS] = useState<string>("");
+  const [globalCSS] = useState<string>(CSS);
   const [token, setToken] = useToken();
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const state = useContext(ToastContext);
