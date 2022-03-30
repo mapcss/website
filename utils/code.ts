@@ -299,3 +299,5 @@ export type Config = {
    */
   extractor?: Arrayable<Extractor>;
 } & GenerateConfig`;
+
+export const CSS = ``;
