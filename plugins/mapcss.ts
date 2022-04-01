@@ -71,8 +71,8 @@ export default function mapcssPlugin(
           const head = i.html.head.filter((headTag) => !headTag.includes(id));
 
           i.html.head = [
-            ...head,
             `<style type="text/css" ${id} ssr>${css}</style>`,
+            ...head,
           ];
         });
       }

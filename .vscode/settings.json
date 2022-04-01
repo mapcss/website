@@ -23,5 +23,6 @@
   "deno.codeLens.test": true,
   "deno.codeLens.testArgs": [
     "--allow-all"
-  ]
+  ],
+  "css.lint.unknownAtRules": "ignore"
 }

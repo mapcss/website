@@ -12,7 +12,7 @@ function IssueForm(
           <label htmlFor="input">Input</label>
         </h2>
         <textarea
-          className="w-full h-24 border rounded px-2 py-1"
+          className="w-full h-24"
           readOnly
           value={input}
           id="input"
@@ -24,7 +24,7 @@ function IssueForm(
           <label htmlFor="config">Config</label>
         </h2>
         <textarea
-          className="w-full h-24 border rounded px-2 py-1"
+          className="w-full h-24"
           readOnly
           value={config}
           id="config"
@@ -37,7 +37,6 @@ function IssueForm(
         </h2>
         <input
           id="playground-link"
-          className="p-1"
           value={playgroundLink}
           readOnly
         />
@@ -47,13 +46,13 @@ function IssueForm(
         <h2 className="text-xl mb-2">
           <label htmlFor="version">Version</label>
         </h2>
-        <input className="p-1" readOnly value={version} id="version" />
+        <input readOnly value={version} id="version" />
       </div>
       <div>
         <h2 className="text-xl mb-2">
           <label htmlFor="runtime">Runtime</label>
         </h2>
-        <input className="p-1" readOnly value={runtime} id="runtime" />
+        <input readOnly value={runtime} id="runtime" />
       </div>
     </form>
   );

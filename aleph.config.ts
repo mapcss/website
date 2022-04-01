@@ -15,6 +15,8 @@ import {
   fromFileUrl,
   join,
 } from "https://deno.land/std@0.132.0/path/mod.ts";
+import postcssMapcss from "https://deno.land/x/postcss_mapcss@1.0.0-beta.2/mod.ts";
+import postcssNesting from "https://cdn.jsdelivr.net/npm/postcss-nesting@10/mod.js";
 import type { Config } from "aleph/types";
 
 const mediaDirPath = join(dirname(fromFileUrl(import.meta.url)), "media");
@@ -45,4 +47,14 @@ export default <Config> {
       },
     ]),
   ],
+  css: {
+    postcss: {
+      plugins: [
+        postcssNesting,
+        postcssMapcss({
+          injectCSS: false,
+        }),
+      ],
+    },
+  },
 };
