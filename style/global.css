@@ -1,0 +1,27 @@
+body {
+  @apply antialiased;
+}
+
+.dark {
+  @apply bg-dark-900 text-slate-50;
+
+  & select, & textarea, & input {
+    @apply border-dark-100;
+  }
+
+  & hr {
+    @apply border-dark-300;
+  }
+}
+
+button:focus {
+  @apply outline-none
+}
+
+select, textarea, input {
+  @apply bg-transparent border border-gray-200 rounded px-2 py-1 appearance-none
+}
+
+hr {
+  @apply border-gray-200;
+}

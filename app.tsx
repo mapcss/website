@@ -7,6 +7,7 @@ import {
 import useDarkMode from "~/hooks/use_dark_mode.ts";
 import useNode from "~/hooks/use_node.ts";
 import "./style/map.css";
+import "./style/global.css";
 import type { State as ToastState } from "~/hooks/use_toast.ts";
 import "~/utils/has_own_polyfill.ts";
 

@@ -190,10 +190,10 @@ export default function Playground(): JSX.Element {
                   <span className="i-mdi-arrow-right-bold w-12 h-12 sm:w-16 sm:h-16" />
                   <span className="i-mdi-github w-20 h-20 sm:w-24 sm:h-24" />
                 </div>
-                <p className="sm:text-center">
+                <p className="text-center">
                   The data to be sent to GitHub was too large.
                 </p>
-                <p className="sm:text-center">
+                <p className="text-center">
                   Please open{" "}
                   <a
                     className="text-amber-500 font-bold"
@@ -204,7 +204,7 @@ export default function Playground(): JSX.Element {
                   </a>{" "}
                   and try Copy & Paste.
                 </p>
-                <hr className="my-3 border-gray-100 border-dark-300" />
+                <hr className="my-4" />
                 <IssueForm
                   {...{
                     ...data,

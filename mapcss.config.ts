@@ -9,9 +9,6 @@ import vscodeIcons from "https://esm.sh/@iconify-json/vscode-icons/icons.json" a
   type: "json",
 };
 import autoprefixer from "https://deno.land/x/postcss_autoprefixer@0.1.1/mod.js";
-import { chain } from "@mapcss/preset_svg/deps.ts";
-import { toObject } from "https://deno.land/x/postcss_js@v1.0.0-beta.4/mod.ts";
-import { filterDeclaration, generate } from "@mapcss/core/mod.ts";
 // import postcss100Fix from "https://esm.sh/postcss-100vh-fix";
 import {
   dirname,
@@ -62,50 +59,9 @@ const base: Config = {
   extractor: [simpleExtractor, bracketExtractor],
 };
 
-const a = await (generate(["bg-dark-900", "text-slate-50"], base));
-const b = await generate("antialiased", base);
-const c = await generate("outline-none", base);
-const d = await generate([
-  "bg-transparent",
-  "borer",
-  "border-gray-100",
-  "dark:border-dark-300",
-  "px-2",
-  "py-1",
-  "appearance-none",
-], base);
 const config: Config = {
   ...base,
-  css: [preflightCSS, {
-    ".dark": {
-      ...chain(a.ast).map(
-        filterDeclaration,
-      ).map(
-        toObject,
-      ).unwrap(),
-    },
-    body: chain(b.ast).map(
-      filterDeclaration,
-    ).map(
-      toObject,
-    ).unwrap(),
-    "button:focus": {
-      ...chain(c.ast).map(
-        filterDeclaration,
-      ).map(
-        toObject,
-      ).unwrap(),
-    },
-    "select, textarea, input": {
-      ...chain(
-        d.ast,
-      ).map(
-        filterDeclaration,
-      ).map(
-        toObject,
-      ).unwrap(),
-    },
-  }],
+  css: [preflightCSS],
   cssMap: {
     max: {
       w: {
