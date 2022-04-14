@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useDeno, useRouter } from "aleph/react";
 import { getNavMenu, Nav, NavMenu } from "../_utils.ts";
 import { Header } from "../components/header.tsx";

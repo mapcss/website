@@ -1,5 +1,3 @@
-import React from "react";
-
 type Props =
   & SwitchProps
   & Omit<JSX.IntrinsicElements["button"], keyof SwitchProps>;

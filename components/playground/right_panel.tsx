@@ -1,4 +1,4 @@
-import React, { createElement, Fragment, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { clsx, EditorProps } from "~/deps.ts";
 import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import parser from "https://deno.land/x/ua_parser_js@1.0.2/src/ua-parser.js";
@@ -6,10 +6,6 @@ import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 
 import type { Data } from "~/utils/message.ts";
 import type { OnRender } from "~/components/shadow_root.tsx";
-
-type Props = {
-  status: "wait" | "success" | "error";
-};
 
 export function Loading(
   { message, className }: Partial<{ message: string; className: string }>,

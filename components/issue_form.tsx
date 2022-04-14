@@ -1,4 +1,3 @@
-import React from "react";
 import type { Data } from "~/utils/message.ts";
 
 type Props = Data & { playgroundLink: string; runtime: string };
