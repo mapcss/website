@@ -1,6 +1,7 @@
 import mapcssPlugin from "./plugins/mapcss.ts";
 import googleAnalyticsPlugin from "~/plugins/google_analitics.ts";
 import injectReactPlugin from "~/plugins/inject_react.ts";
+import patchRemoteImportMap from "~/plugins/patch_remote_import_map.ts";
 import remarkFrontmatter from "https://cdn.skypack.dev/remark-frontmatter";
 import copy2Public from "~/plugins/public.ts";
 import { remarkMdxFrontmatter } from "https://esm.sh/remark-mdx-frontmatter";
@@ -48,6 +49,7 @@ export default <Config> {
       },
     ]),
     injectReactPlugin(),
+    patchRemoteImportMap,
   ],
   css: {
     postcss: {

@@ -1,6 +1,5 @@
 import { useContext } from "react";
-import { clsx } from "~/deps.ts";
-import Switch from "~/components/switch.tsx";
+import { clsx, Switch } from "~/deps.ts";
 import { DarkModeContext } from "~/contexts/mod.ts";
 
 const ToggleDark = (): JSX.Element => {
