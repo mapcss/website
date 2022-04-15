@@ -12,4 +12,13 @@ export type {
   EditorProps,
   OnMount,
 } from "https://esm.sh/@monaco-editor/react@4.3.1?deps=monaco-editor@0.33.0,react@17.0.2&pin=v69";
-export { Switch } from "https://deno.land/x/atomic_ui_react@1.0.0-beta.1/mod.ts";
+export {
+  Filter,
+  PureTab,
+  Switch,
+  TabList,
+  TabPanel,
+  Transition,
+  useBoolean,
+  useTransition,
+} from "https://deno.land/x/atomic_ui_react@1.0.0-beta.2/mod.ts";
