@@ -1,7 +1,9 @@
 import mapcssPlugin from "./plugins/mapcss.ts";
 import googleAnalyticsPlugin from "~/plugins/google_analitics.ts";
+import injectReactPlugin from "~/plugins/inject_react.ts";
+import patchRemoteImportMap from "~/plugins/patch_remote_import_map.ts";
 import remarkFrontmatter from "https://cdn.skypack.dev/remark-frontmatter";
-import publicCopy from "~/plugins/public.ts";
+import copy2Public from "~/plugins/public.ts";
 import { remarkMdxFrontmatter } from "https://esm.sh/remark-mdx-frontmatter";
 import rehypeSlug from "https://esm.sh/rehype-slug@5";
 import rehypeHighlight from "https://esm.sh/rehype-highlight@5";
@@ -37,7 +39,7 @@ export default <Config> {
       rehypePlugins: [rehypeSlug, rehypeHighlight],
       rewritePagePath: (path) => path.replaceAll("_", "-"),
     }),
-    publicCopy([
+    copy2Public([
       {
         from: join(mediaDirPath, "logo.svg"),
         basename: "favicon.svg",
@@ -46,6 +48,8 @@ export default <Config> {
         from: join(mediaDirPath, "hero-playground.png"),
       },
     ]),
+    injectReactPlugin(),
+    patchRemoteImportMap,
   ],
   css: {
     postcss: {

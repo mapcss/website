@@ -1,4 +1,4 @@
-import React, {
+import {
   MouseEventHandler,
   useContext,
   useEffect,
@@ -8,7 +8,15 @@ import React, {
 import useColorModeValue from "~/hooks/use_color_mode_value.ts";
 import useResize from "~/hooks/use_resize.ts";
 import { Header } from "~/components/header.tsx";
-import { clsx, Editor, OnMount } from "~/deps.ts";
+import {
+  clsx,
+  Editor,
+  Filter,
+  OnMount,
+  PureTab,
+  TabList,
+  TabPanel,
+} from "~/deps.ts";
 import { CODE, CSS, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
 import useUpdateEffect from "~/hooks/use_update_effect.ts";
@@ -289,16 +297,10 @@ export default function Playground(): JSX.Element {
         <main className="lg:grid flex-1 grid-cols-2">
           <div className="h-full flex flex-col lg:border-r border-slate-900/10">
             <div role="toolbar" className="justify-between flex">
-              <div
-                role="tablist"
-                className="overflow-x-scroll flex-1 flex"
-                aria-orientation="horizontal"
-              >
+              <TabList className="overflow-x-scroll flex-1 flex">
                 {tabs.map(({ name, className, icon, ...rest }, i) => (
-                  <button
-                    role="tab"
-                    type="button"
-                    aria-selected={select === i}
+                  <PureTab
+                    isActive={select === i}
                     onClick={() => setReflect(i)}
                     key={name}
                     {...rest}
@@ -325,9 +327,9 @@ export default function Playground(): JSX.Element {
                         },
                       )}
                     />
-                  </button>
+                  </PureTab>
                 ))}
-              </div>
+              </TabList>
 
               <section className="flex-none px-1 py-0.5 flex text-sm items-center space-x-1 whitespace-pre">
                 <select
@@ -378,7 +380,7 @@ export default function Playground(): JSX.Element {
               </section>
             </div>
 
-            <div className="flex-1" role="tabpanel">
+            <TabPanel className="flex-1">
               {select === 0
                 ? (
                   <Editor
@@ -439,7 +441,7 @@ export default function Playground(): JSX.Element {
                   ? error && <Err file="config" className="h-full" e={error} />
                   : <></>
                 : <></>}
-            </div>
+            </TabPanel>
           </div>
 
           <div className="h-full hidden lg:flex flex-col">
@@ -457,29 +459,32 @@ export default function Playground(): JSX.Element {
                     role="toolbar"
                     className="flex flex-row-reverse h-[30px] shadow flex-none"
                   >
-                    {previewTabs.map((
-                      { name, icon, className, ...rest },
-                      i,
-                    ) => (
-                      <button
-                        className={clsx(
-                          "space-x-1 px-3 border-b-1",
-                          className,
-                          activeIndex === i
-                            ? "border-amber-500"
-                            : "border-transparent",
-                        )}
-                        {...rest}
-                        key={name}
-                        onClick={() => setActiveIndex(i)}
-                      >
-                        <span className={icon} />
-                        <span>{name}</span>
-                      </button>
-                    ))}
+                    <TabList className="flex">
+                      {previewTabs.map((
+                        { name, icon, className, ...rest },
+                        i,
+                      ) => (
+                        <PureTab
+                          isActive={activeIndex === i}
+                          className={clsx(
+                            "space-x-1 px-3 border-b-1",
+                            className,
+                            activeIndex === i
+                              ? "border-amber-500"
+                              : "border-transparent",
+                          )}
+                          {...rest}
+                          key={name}
+                          onClick={() => setActiveIndex(i)}
+                        >
+                          <span className={icon} />
+                          <span>{name}</span>
+                        </PureTab>
+                      ))}
+                    </TabList>
                   </div>
-                  {activeIndex === 0
-                    ? (
+                  <Filter index={activeIndex}>
+                    <TabPanel className="flex-1">
                       <ShadowRoot
                         {...shadowRootProps}
                         onRender={handleOnRender(cssStyle)}
@@ -489,24 +494,22 @@ export default function Playground(): JSX.Element {
                           dangerouslySetInnerHTML={{ __html: input }}
                         />
                       </ShadowRoot>
-                    )
-                    : activeIndex === 1
-                    ? (
+                    </TabPanel>
+                    <TabPanel className="flex-1">
                       <Editor
                         {...CSSEditorProps}
                         value={cssSheet}
                         theme={theme}
                       />
-                    )
-                    : activeIndex === 2
-                    ? (
+                    </TabPanel>
+                    <TabPanel className="flex-1">
                       <Editor
                         {...JSONEditorProps}
                         value={token}
                         theme={theme}
                       />
-                    )
-                    : <></>}
+                    </TabPanel>
+                  </Filter>
                 </>
               )
               : result.status === "error"

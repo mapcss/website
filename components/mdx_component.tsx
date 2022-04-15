@@ -1,4 +1,3 @@
-import React from "react";
 import { MDXComponents } from "https://esm.sh/@types/mdx/types.d.ts";
 import { clsx, isString } from "../deps.ts";
 

@@ -1,4 +1,3 @@
-import React from "react";
 import ToggleDark from "~/components/toggle_dark.tsx";
 import { clsx } from "~/deps.ts";
 import useOverlay from "~/hooks/use_overlay.ts";

@@ -1,4 +1,3 @@
-import React from "react";
 import type { Theme } from "../../mod.ts";
 import { clsx, filterValues, isObject } from "../deps.ts";
 

@@ -1,4 +1,3 @@
-import React from "react";
 import { clsx } from "~/deps.ts";
 import type { ErrorLike } from "~/utils/message.ts";
 

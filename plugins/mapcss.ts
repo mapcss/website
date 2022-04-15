@@ -3,10 +3,13 @@ import {
   Config as GenerateConfig,
   generate,
 } from "@mapcss/core/mod.ts";
-import { resolveConfigFile } from "@mapcss/config/mod.ts";
+import {
+  resolveConfigFile,
+  resolveConfigFilePath,
+} from "@mapcss/config/mod.ts";
+import { fromFileSystem } from "@mapcss/config/util.ts";
 import { expandGlob, WalkEntry } from "https://deno.land/std@0.125.0/fs/mod.ts";
 import { ensureFileSync } from "https://deno.land/std@0.132.0/fs/ensure_file.ts";
-import { resolve, toFileUrl } from "https://deno.land/std@0.132.0/path/mod.ts";
 import type { Plugin } from "aleph/types";
 
 export type Config = GenerateConfig & {
@@ -22,9 +25,10 @@ export default function mapcssPlugin(
   return {
     name: "mapcss/loader",
     setup: async (aleph) => {
-      const config = await resolveConfigFile(
-        toFileUrl(resolve(aleph.workingDir, "mapcss.config.ts")).toString(),
-      );
+      const configPath = await resolveConfigFilePath(fromFileSystem());
+      const config = configPath
+        ? await resolveConfigFile(configPath)
+        : undefined;
       const filePath = "./style/map.css";
       ensureFileSync(filePath);
 

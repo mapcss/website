@@ -1,4 +1,3 @@
-import React from "react";
 import { isDynamicRule, isStaticRule } from "mapcss/core/_utils.ts";
 import type {
   CSSObject,
