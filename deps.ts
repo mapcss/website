@@ -21,4 +21,4 @@ export {
   Transition,
   useBoolean,
   useTransition,
-} from "https://deno.land/x/atomic_ui_react@1.0.0-beta.3/mod.ts";
+} from "https://deno.land/x/atomic_ui_react@1.0.0-beta.5/mod.ts";

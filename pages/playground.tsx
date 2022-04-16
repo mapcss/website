@@ -65,7 +65,6 @@ export default function Playground(): JSX.Element {
   const { version, setVersion, latestVersions } = useVersion();
   const [globalCSS] = useState<string>(CSS);
   const [token, setToken] = useToken();
-  const [activeIndex, setActiveIndex] = useState<number>(0);
   const state = useContext(ToastContext);
   const toast = useToast(state);
   const [input, setInput] = useState<string>(() =>
@@ -454,10 +453,7 @@ export default function Playground(): JSX.Element {
               )
               : result.status === "success"
               ? cssStyle && input && (
-                <TabProvider
-                  selectedIndex={activeIndex}
-                  onChange={setActiveIndex}
-                >
+                <TabProvider>
                   <div
                     role="toolbar"
                     className="flex flex-row-reverse h-[30px] shadow flex-none"
@@ -465,16 +461,17 @@ export default function Playground(): JSX.Element {
                     <TabList className="flex">
                       {previewTabs.map((
                         { name, icon, className, ...rest },
-                        i,
                       ) => (
                         <Tab
-                          className={clsx(
-                            "space-x-1 px-3 border-b-1",
-                            className,
-                            activeIndex === i
-                              ? "border-amber-500"
-                              : "border-transparent",
-                          )}
+                          renderProps={({ isSelected }) => ({
+                            className: clsx(
+                              "space-x-1 px-3 border-b-1",
+                              className,
+                              isSelected
+                                ? "border-amber-500"
+                                : "border-transparent",
+                            ),
+                          })}
                           {...rest}
                           key={name}
                         >
