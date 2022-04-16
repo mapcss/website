@@ -3,7 +3,7 @@ import json from "../import_map.json" assert { type: "json" };
 
 const reactShim = json.imports["react"];
 const importShim = /https:\/\/deno\.land\/x\/atomic_ui_react.*\.ts$/;
-const pattern = /(import\s+\{.+\}\s+from\s+)("react")/g;
+const pattern = /(import\s+\{[\s\S]+\}\s+from\s+)("react")/g;
 
 const plugin: Plugin = {
   name: "patch-remote-module-import-map",

@@ -11,11 +11,11 @@ import { Header } from "~/components/header.tsx";
 import {
   clsx,
   Editor,
-  Filter,
   OnMount,
-  PureTab,
+  Tab,
   TabList,
   TabPanel,
+  TabProvider,
 } from "~/deps.ts";
 import { CODE, CSS, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
@@ -299,8 +299,8 @@ export default function Playground(): JSX.Element {
             <div role="toolbar" className="justify-between flex">
               <TabList className="overflow-x-scroll flex-1 flex">
                 {tabs.map(({ name, className, icon, ...rest }, i) => (
-                  <PureTab
-                    isActive={select === i}
+                  <Tab
+                    isSelected={select === i}
                     onClick={() => setReflect(i)}
                     key={name}
                     {...rest}
@@ -327,7 +327,7 @@ export default function Playground(): JSX.Element {
                         },
                       )}
                     />
-                  </PureTab>
+                  </Tab>
                 ))}
               </TabList>
 
@@ -454,7 +454,10 @@ export default function Playground(): JSX.Element {
               )
               : result.status === "success"
               ? cssStyle && input && (
-                <>
+                <TabProvider
+                  selectedIndex={activeIndex}
+                  onChange={setActiveIndex}
+                >
                   <div
                     role="toolbar"
                     className="flex flex-row-reverse h-[30px] shadow flex-none"
@@ -464,8 +467,7 @@ export default function Playground(): JSX.Element {
                         { name, icon, className, ...rest },
                         i,
                       ) => (
-                        <PureTab
-                          isActive={activeIndex === i}
+                        <Tab
                           className={clsx(
                             "space-x-1 px-3 border-b-1",
                             className,
@@ -475,42 +477,39 @@ export default function Playground(): JSX.Element {
                           )}
                           {...rest}
                           key={name}
-                          onClick={() => setActiveIndex(i)}
                         >
                           <span className={icon} />
                           <span>{name}</span>
-                        </PureTab>
+                        </Tab>
                       ))}
                     </TabList>
                   </div>
-                  <Filter index={activeIndex}>
-                    <TabPanel className="flex-1">
-                      <ShadowRoot
-                        {...shadowRootProps}
-                        onRender={handleOnRender(cssStyle)}
-                      >
-                        <div
-                          className={clsx("h-full", darkClass)}
-                          dangerouslySetInnerHTML={{ __html: input }}
-                        />
-                      </ShadowRoot>
-                    </TabPanel>
-                    <TabPanel className="flex-1">
-                      <Editor
-                        {...CSSEditorProps}
-                        value={cssSheet}
-                        theme={theme}
+                  <TabPanel className="flex-1">
+                    <ShadowRoot
+                      {...shadowRootProps}
+                      onRender={handleOnRender(cssStyle)}
+                    >
+                      <div
+                        className={clsx("h-full", darkClass)}
+                        dangerouslySetInnerHTML={{ __html: input }}
                       />
-                    </TabPanel>
-                    <TabPanel className="flex-1">
-                      <Editor
-                        {...JSONEditorProps}
-                        value={token}
-                        theme={theme}
-                      />
-                    </TabPanel>
-                  </Filter>
-                </>
+                    </ShadowRoot>
+                  </TabPanel>
+                  <TabPanel className="flex-1">
+                    <Editor
+                      {...CSSEditorProps}
+                      value={cssSheet}
+                      theme={theme}
+                    />
+                  </TabPanel>
+                  <TabPanel className="flex-1">
+                    <Editor
+                      {...JSONEditorProps}
+                      value={token}
+                      theme={theme}
+                    />
+                  </TabPanel>
+                </TabProvider>
               )
               : result.status === "error"
               ? error && <Err file="config" className="h-full" e={error} />
