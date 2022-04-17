@@ -1,5 +1,6 @@
 import {
   MouseEventHandler,
+  ReactElement,
   useContext,
   useEffect,
   useMemo,
@@ -19,7 +20,6 @@ import {
 } from "~/deps.ts";
 import { CODE, CSS, RAW_CONFIG, TYPES } from "~/utils/code.ts";
 import { dynamic } from "aleph/react";
-import useUpdateEffect from "~/hooks/use_update_effect.ts";
 import { autoCloseTag } from "~/utils/monaco.ts";
 import { BASE_ISSUE_URL } from "~/utils/constant.ts";
 import { ToastContext } from "~/contexts/mod.ts";
@@ -271,23 +271,39 @@ export default function Playground(): JSX.Element {
     rawConfig,
   ]);
 
-  const [select, setSelect] = useState(0);
-  const [reflect, setReflect] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
-  useUpdateEffect(() => {
-    // work around for remove monaco editor from DOM
-    const select = reflect;
-    setSelect(NaN);
-    const id = requestAnimationFrame(() => setSelect(select));
-    return () => cancelAnimationFrame(id);
-  }, [reflect]);
+  const RenderView = (
+    { children }: { children: ReactElement },
+  ): JSX.Element => {
+    switch (result.status) {
+      case "wait": {
+        return (
+          <Loading
+            className={classNameMsg}
+            message={waitingMsg}
+          />
+        );
+      }
+      case "error": {
+        return error
+          ? <Err file="config" className="h-full" e={error} />
+          : <></>;
+      }
+      case "success": {
+        return children;
+      }
+      default: {
+        return <></>;
+      }
+    }
+  };
 
   useResize((ev) => {
     if ((ev.currentTarget as Window).innerWidth > 1024) {
-      setReflect(0);
+      setSelectedIndex(0);
     }
-  }, { deps: [], enabled: [2, 3, 4].includes(select) });
-
+  }, { deps: [], enabled: [2, 3, 4].includes(selectedIndex) });
   return (
     <>
       <Head />
@@ -295,122 +311,118 @@ export default function Playground(): JSX.Element {
         <Header className="flex-none" />
         <main className="lg:grid flex-1 grid-cols-2">
           <div className="h-full flex flex-col lg:border-r border-slate-900/10">
-            <div role="toolbar" className="justify-between flex">
-              <TabList className="overflow-x-scroll flex-1 flex">
-                {tabs.map(({ name, className, icon, ...rest }, i) => (
-                  <Tab
-                    isSelected={select === i}
-                    onClick={() => setReflect(i)}
-                    key={name}
-                    {...rest}
+            <TabProvider
+              selectedIndex={selectedIndex}
+              onChange={setSelectedIndex}
+            >
+              <div role="toolbar" className="justify-between flex">
+                <TabList className="overflow-x-scroll flex-1 flex">
+                  {tabs.map(({ name, className, icon, ...rest }, i) => (
+                    <Tab
+                      renderProps={({ isSelected }) => ({
+                        className: clsx(
+                          {
+                            "border-amber-500 italic": isSelected,
+                            "border-transparent": !isSelected,
+                          },
+                          className,
+                          "pl-3 inline-flex items-center border-b-1",
+                        ),
+                      })}
+                      key={name}
+                      {...rest}
+                    >
+                      <span className={clsx(icon)} />
+                      <span className="mx-1">
+                        {name}
+                      </span>
+                      <span
+                        className={clsx(
+                          "i-mdi-circle w-2 h-2 text-teal-500",
+                          name === "config" && enabledSave
+                            ? "visible"
+                            : "invisible",
+                          {
+                            "invisible": name !== "config",
+                          },
+                        )}
+                      />
+                    </Tab>
+                  ))}
+                </TabList>
+
+                <section className="flex-none px-1 py-0.5 flex text-sm items-center space-x-1 whitespace-pre">
+                  <select
+                    value={version}
+                    onChange={(v) => setVersion(v.currentTarget.value)}
+                    className="focus:outline-none px-1 fixed z-1 bottom-4 right-4 sm:static rounded-md border-1 border-slate-900/10 dark:border-slate-300/10 h-[26px] cursor-pointer backdrop-blur hover:bg-gray-100 dark:hover:bg-dark-300 transition duration-200 focus:ring-1 ring-amber-500"
+                  >
+                    {latestVersions.map((version) => (
+                      <option key={version}>{version}</option>
+                    ))}
+                  </select>
+                  <button
+                    disabled={!enabledSave}
+                    onClick={save}
                     className={clsx(
-                      select === i
-                        ? "border-amber-500 italic"
-                        : "border-transparent",
-                      className,
-                      "pl-3 inline-flex items-center border-b-1",
+                      "group relative space-x-2 rounded-md p-1 border-1 border-slate-900/10 dark:border-slate-300/10 focus:ring-1 ring-amber-500 transition duration-200 hover:bg-gray-100 dark:hover:bg-dark-300 disabled:text-gray-400",
+                      selectedIndex === 1 ? "inline-flex" : "hidden",
                     )}
                   >
-                    <span className={clsx(icon)} />
-                    <span className="mx-1">
-                      {name}
-                    </span>
                     <span
                       className={clsx(
-                        "i-mdi-circle w-2 h-2 text-teal-500",
-                        name === "config" && enabledSave
-                          ? "visible"
-                          : "invisible",
-                        {
-                          "invisible": name !== "config",
-                        },
+                        { "text-teal-500 ": enabledSave },
+                        "i-mdi-content-save w-4 h-4",
                       )}
                     />
-                  </Tab>
-                ))}
-              </TabList>
+                    <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
+                      Save
+                    </span>
+                  </button>
+                  <button
+                    onClick={handleClick}
+                    className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
+                  >
+                    <span className="i-mdi-bug w-4 h-4" />
+                    <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
+                      Report issue
+                    </span>
+                  </button>
+                  <button
+                    onClick={handleShareLink}
+                    className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
+                  >
+                    <span className="i-mdi-share-variant w-4 h-4" />
+                    <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
+                      Share URL
+                    </span>
+                  </button>
+                </section>
+              </div>
 
-              <section className="flex-none px-1 py-0.5 flex text-sm items-center space-x-1 whitespace-pre">
-                <select
-                  value={version}
-                  onChange={(v) => setVersion(v.currentTarget.value)}
-                  className="focus:outline-none px-1 fixed z-1 bottom-4 right-4 sm:static rounded-md border-1 border-slate-900/10 dark:border-slate-300/10 h-[26px] cursor-pointer backdrop-blur hover:bg-gray-100 dark:hover:bg-dark-300 transition duration-200 focus:ring-1 ring-amber-500"
-                >
-                  {latestVersions.map((version) => (
-                    <option key={version}>{version}</option>
-                  ))}
-                </select>
-                <button
-                  disabled={!enabledSave}
-                  onClick={save}
-                  className={clsx(
-                    "group relative space-x-2 rounded-md p-1 border-1 border-slate-900/10 dark:border-slate-300/10 focus:ring-1 ring-amber-500 transition duration-200 hover:bg-gray-100 dark:hover:bg-dark-300 disabled:text-gray-400",
-                    select === 1 ? "inline-flex" : "hidden",
-                  )}
-                >
-                  <span
-                    className={clsx(
-                      { "text-teal-500 ": enabledSave },
-                      "i-mdi-content-save w-4 h-4",
-                    )}
-                  />
-                  <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
-                    Save
-                  </span>
-                </button>
-                <button
-                  onClick={handleClick}
-                  className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
-                >
-                  <span className="i-mdi-bug w-4 h-4" />
-                  <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
-                    Report issue
-                  </span>
-                </button>
-                <button
-                  onClick={handleShareLink}
-                  className="group relative space-x-2 rounded-md inline-flex p-1 border-1 border-slate-900/10 dark:border-slate-300/10 hover:bg-gray-100 dark:hover:bg-dark-300 focus:ring-1 ring-amber-500 transition duration-200"
-                >
-                  <span className="i-mdi-share-variant w-4 h-4" />
-                  <span className="text-sm hidden lg:group-hover:block absolute mt-9 -translate-x-1/2 -translate-y-1/2 bg-white shadow dark:bg-dark-900 border border-gray-200 dark:border-dark-100 rounded-md px-1 z-1">
-                    Share URL
-                  </span>
-                </button>
-              </section>
-            </div>
+              <TabPanel className="flex-1">
+                <Editor
+                  {...htmlEditorProps}
+                  onChange={(v) => setInput(v ?? "")}
+                  onMount={(editor) => autoCloseTag(editor)}
+                  value={input}
+                  theme={theme}
+                />
+              </TabPanel>
+              <TabPanel className="flex-1">
+                <Editor
+                  {...tsEditorProps}
+                  onChange={(value) => setRawConfig(value ?? "")}
+                  value={rawConfig}
+                  theme={theme}
+                  onMount={handleMount}
+                />
+              </TabPanel>
 
-            <TabPanel className="flex-1">
-              {select === 0
-                ? (
-                  <Editor
-                    {...htmlEditorProps}
-                    onChange={(v) => setInput(v ?? "")}
-                    onMount={(editor) => autoCloseTag(editor)}
-                    value={input}
-                    theme={theme}
-                  />
-                )
-                : select === 1
-                ? (
-                  <Editor
-                    {...tsEditorProps}
-                    onChange={(value) => setRawConfig(value ?? "")}
-                    value={rawConfig}
-                    theme={theme}
-                    onMount={handleMount}
-                  />
-                )
-                : [2, 3, 4].includes(select)
-                ? result.status === "wait"
-                  ? (
-                    <Loading
-                      className={classNameMsg}
-                      message={waitingMsg}
-                    />
-                  )
-                  : result.status === "success"
-                  ? select === 2
-                    ? cssStyle && input && (
+              <TabPanel className="flex-1">
+                <RenderView>
+                  {cssStyle && input
+                    ? (
                       <ShadowRoot
                         {...shadowRootProps}
                         onRender={handleOnRender(cssStyle)}
@@ -421,26 +433,30 @@ export default function Playground(): JSX.Element {
                         />
                       </ShadowRoot>
                     )
-                    : select === 3
-                    ? (
-                      <Editor
-                        {...CSSEditorProps}
-                        value={cssSheet}
-                        theme={theme}
-                      />
-                    )
-                    : (
-                      <Editor
-                        {...JSONEditorProps}
-                        value={token}
-                        theme={theme}
-                      />
-                    )
-                  : result.status === "error"
-                  ? error && <Err file="config" className="h-full" e={error} />
-                  : <></>
-                : <></>}
-            </TabPanel>
+                    : <></>}
+                </RenderView>
+              </TabPanel>
+
+              <TabPanel className="flex-1">
+                <RenderView>
+                  <Editor
+                    {...CSSEditorProps}
+                    value={cssSheet}
+                    theme={theme}
+                  />
+                </RenderView>
+              </TabPanel>
+
+              <TabPanel className="flex-1">
+                <RenderView>
+                  <Editor
+                    {...JSONEditorProps}
+                    value={token}
+                    theme={theme}
+                  />
+                </RenderView>
+              </TabPanel>
+            </TabProvider>
           </div>
 
           <div className="h-full hidden lg:flex flex-col">
