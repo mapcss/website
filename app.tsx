@@ -1,3 +1,5 @@
+// workaround aleph bundle error, import directly
+import { SSRProvider } from "https://deno.land/x/atomic_ui_react@1.0.0-beta.7/mod.ts";
 import { FC, useState } from "react";
 import {
   DarkModeContext,
@@ -10,7 +12,6 @@ import "./style/map.css";
 import "./style/global.css";
 import type { State as ToastState } from "~/hooks/use_toast.ts";
 import "~/utils/has_own_polyfill.ts";
-
 export default function App(
   { Page, pageProps }: { Page: FC; pageProps: Record<string, unknown> },
 ) {
@@ -19,7 +20,7 @@ export default function App(
   const toastStateSet = useState<ToastState[]>([]);
 
   return (
-    <>
+    <SSRProvider>
       <head>
         <meta name="viewport" content="width=device-width" />
         <meta charSet="utf-8" />
@@ -39,6 +40,6 @@ export default function App(
       {toastStateSet[0].map(({ node, id }) => (
         <div role="alert" key={id}>{node}</div>
       ))}
-    </>
+    </SSRProvider>
   );
 }
