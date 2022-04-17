@@ -1,4 +1,5 @@
 import {
+  memo,
   MouseEventHandler,
   ReactElement,
   useContext,
@@ -304,6 +305,9 @@ export default function Playground(): JSX.Element {
       setSelectedIndex(0);
     }
   }, { deps: [], enabled: [2, 3, 4].includes(selectedIndex) });
+
+  const isMobile = useIsMobile((window) => window.innerWidth < 1024);
+
   return (
     <>
       <Head />
@@ -317,7 +321,9 @@ export default function Playground(): JSX.Element {
             >
               <div role="toolbar" className="justify-between flex">
                 <TabList className="overflow-x-scroll flex-1 flex">
-                  {tabs.map(({ name, className, icon, ...rest }, i) => (
+                  {tabs.map((
+                    { name, className, icon, isDisabled, ...rest },
+                  ) => (
                     <Tab
                       renderProps={({ isSelected }) => ({
                         className: clsx(
@@ -329,6 +335,7 @@ export default function Playground(): JSX.Element {
                           "pl-3 inline-flex items-center border-b-1",
                         ),
                       })}
+                      isDisabled={isDisabled && !isMobile}
                       key={name}
                       {...rest}
                     >
@@ -536,7 +543,7 @@ export default function Playground(): JSX.Element {
   );
 }
 
-function Head(): JSX.Element {
+const Head = memo(() => {
   return (
     <head>
       <title>{TITLE}</title>
@@ -567,4 +574,18 @@ function Head(): JSX.Element {
       <meta name="application-name" content={TITLE} />
     </head>
   );
+});
+
+function useIsMobile(fn: (window: Window) => boolean) {
+  const [state, setState] = useState<boolean>(false);
+
+  useEffect(() => {
+    setState(fn(window));
+  }, []);
+
+  useResize((ev) => {
+    setState(fn(ev.currentTarget as Window));
+  }, { deps: [], enabled: true });
+
+  return state;
 }

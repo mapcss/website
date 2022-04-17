@@ -21,4 +21,7 @@ export {
   Transition,
   useBoolean,
   useTransition,
-} from "https://deno.land/x/atomic_ui_react@1.0.0-beta.7/mod.ts";
+} from "https://deno.land/x/atomic_ui_react@1.0.0-beta.8/mod.ts";
+export type {
+  TabProps,
+} from "https://deno.land/x/atomic_ui_react@1.0.0-beta.8/mod.ts";
