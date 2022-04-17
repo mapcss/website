@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { clsx, EditorProps } from "~/deps.ts";
+import { clsx, EditorProps, TabProps } from "~/deps.ts";
 import { encode } from "https://deno.land/std@0.131.0/encoding/base64url.ts";
 import parser from "https://deno.land/x/ua_parser_js@1.0.2/src/ua-parser.js";
 import { BASE_ISSUE_URL } from "~/utils/constant.ts";
@@ -137,20 +137,20 @@ const tokenTab = {
   icon: "i-vscode-icons-file-type-light-json w-4 h-4",
 };
 
-export const tabs:
-  ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
-    { name: "html", icon: "i-vscode-icons-file-type-html w-4 h-4" },
-    {
-      name: "config",
-      icon: "i-vscode-icons-file-type-typescript-official w-4 h-4",
-    },
-    {
-      ...previewTab,
-      className: "lg:hidden",
-    },
-    { ...cssOutputTab, className: "lg:hidden" },
-    { ...tokenTab, className: "lg:hidden" },
-  ];
+export const tabs: ({ name: string; icon: string } & TabProps)[] = [
+  { name: "html", icon: "i-vscode-icons-file-type-html w-4 h-4" },
+  {
+    name: "config",
+    icon: "i-vscode-icons-file-type-typescript-official w-4 h-4",
+  },
+  {
+    ...previewTab,
+    className: "lg:hidden",
+    isDisabled: true,
+  },
+  { ...cssOutputTab, className: "lg:hidden", isDisabled: true },
+  { ...tokenTab, className: "lg:hidden", isDisabled: true },
+];
 
 export const previewTabs:
   ({ name: string; icon: string } & JSX.IntrinsicElements["button"])[] = [
